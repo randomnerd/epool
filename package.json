@@ -1,0 +1,17 @@
+{
+  "name": "stratum-server",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node --nouse-idle-notification --expose-gc main.js"
+  },
+  "dependencies": {
+    "stratum": "0.0.5",
+    "bigint": "~0.4.2",
+    "binpack": "0.0.14",
+    "buffers": "~0.1.1",
+    "underscore": "~1.5.2",
+    "litecoin-scrypt": "0.0.1",
+    "coffee-script": "~1.6.3"
+  }
+}

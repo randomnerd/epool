@@ -1,0 +1,96 @@
+stratum = require 'stratum'
+TemplateRegistry = require './template_registry'
+Coinbaser = require './coinbaser'
+Subscription = require './subscription'
+ShareLogger = require './sharelogger'
+
+class Pool
+  constructor: (config) ->
+    @subs = {}
+    @config = config
+    @sharelogger = new ShareLogger(config.sharelogger)
+    @server = stratum.Server.create
+      rpc:
+        host: config.rpcHost
+        port: config.rpcPort
+        password: config.rpcPass
+      settings:
+        hostname: config.hostname
+        toobusy: config.toobusy
+        host: config.stratumHost
+        port: config.stratumPort
+    @server.on 'mining', (r,d,c) => @onMining(r,d,c)
+
+    @server.rpc.expose 'mining.block', (args, conn, cb) =>
+      @registry.updateBlock()
+      console.log 'Block notification received, updating block template...'
+      cb(null, true)
+
+    @daemon = stratum.Daemon.create
+      name: config.coinName
+      host: config.coinHost
+      port: config.coinPort
+      user: config.coinUser
+      password: config.coinPass
+
+    @coinbaser = new Coinbaser(@daemon, config.address)
+    @registry = new TemplateRegistry(config.algo, config.pos, @sharelogger, @coinbaser, @daemon,
+      ((n) => @onTemplate(n)),
+      ((p,h) => @onBlock(p,h))
+    )
+
+
+  onTemplate: (newBlock) ->
+    cleanJobs = newBlock
+    args = @registry.getLastBroadcastArgs()
+    args[args.length-1] = cleanJobs
+
+    @server.broadcast('notify', args).then(
+      ((total) -> console.log('Broadcasted new work to %s clients', total) ),
+      ((err) -> console.log('Cant broadcast: %s', err) )
+    )
+
+  onBlock: (prevhash, height) -> true # FIXME
+
+  onMining: (req, def, client) ->
+    switch req.method
+      when 'subscribe'
+        @onSubscribe(client, req.params, def)
+      when 'submit'
+        @onSubmit(@subs[client.id], req.params, def)
+      when 'authorize'
+        @onAuthorize(client, req.params, def)
+
+  onSubscribe: (client, params, def) ->
+    if client.subscription
+      def.reject([-2, "This connection is already subscribed for such event.", null])
+
+    sub = new Subscription(client, params, @registry, @config.difficulty)
+    @subs[sub.id] = sub
+    def.resolve(sub.start())
+    setTimeout (=>
+      client.notify(@registry.getLastBroadcastArgs())
+    ), 200
+
+  onAuthorize: (client, params, def) ->
+    [user, pass] = params
+
+    auth = true # FIXME
+
+    client.authorized = auth
+    def.resolve([auth])
+    console.log("Miner authorized: %s", user)
+
+  onSubmit: (sub, params, def) ->
+    [workerName, jobId, extranonce2, ntime, nonce] = params
+    @registry.submitShare(
+      def, jobId, workerName, sub.session,
+      sub.extranonce1_bin, extranonce2, ntime, nonce,
+      sub.diff
+    )
+
+  start: ->
+    @server.listen().then (msg) ->
+      console.log msg
+
+module.exports = Pool

@@ -1,0 +1,14 @@
+config =
+  address: 'YOUR_HOT_WALLET_ADDRESS'
+  difficulty: 32
+  toobusy: 100 # max lag to stop accepting new connections
+  hostname: 'localhost' # stratum reported hostname
+  stratumHost: 'localhost' # stratum listen address
+  stratumPort: 3333
+  coinName: 'fastcoin' # just for reference
+  coinHost: 'localhost' # rpc host
+  coinPort: 11082
+  coinUser: 'user'
+  coinPass: 'pass'
+
+module.exports = config

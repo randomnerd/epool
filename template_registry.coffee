@@ -165,7 +165,7 @@ class TemplateRegistry
       coinbase_hash = util.dblsha(coinbase_bin)
 
       merkleroot_bin = job.merkletree.withFirst(coinbase_hash)
-      merkleroot_int = util.deser_uint256(new Buffers(merkleroot_bin))
+      merkleroot_int = util.deser_uint256(new Buffers([merkleroot_bin]))
 
       header_bin = job.serializeHeader(merkleroot_int, time_bin, nonce_bin)
 
@@ -174,7 +174,7 @@ class TemplateRegistry
           hash_bin = util.scrypt(util.reverse_bin(header_bin, 4))
         when 'sha256'
           hash_bin = util.dblsha(util.reverse_bin(header_bin, 4))
-      hash_int = util.deser_uint256(new Buffers(hash_bin))
+      hash_int = util.deser_uint256(new Buffers([hash_bin]))
       hash_hex = hash_int.toString(16)
       share.hash = hash_hex
 

@@ -91,7 +91,7 @@ class TemplateRegistry
       @addTemplate(template, data.height)
 
       console.log('Update finished, %s sec, %s txes',
-        (new Date() - start)/1000, template.vtx.length)
+        (new Date() - start)/1000, template.tx.length)
     catch e
       console.log e, e.stack
     finally

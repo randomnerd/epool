@@ -62,8 +62,8 @@ class BlockTemplate extends halfnode.Block
 
   build_broadcast_args: ->
     prevhash = util.hexlify(@prevhash_bin)
-    coinb1 = util.hexlify(@vtx[0]._serialized[0])
-    coinb2 = util.hexlify(@vtx[0]._serialized[1])
+    coinb1 = util.hexlify(@tx[0]._serialized[0])
+    coinb2 = util.hexlify(@tx[0]._serialized[1])
     merkle_branch = []
     merkle_branch.push(util.hexlify(x)) for x in @merkletree._steps
     version = util.hexlify(binpack.packUInt32(@version, 'big'))
@@ -84,7 +84,7 @@ class BlockTemplate extends halfnode.Block
     ]
 
   serializeCoinbase: (en1, en2) ->
-    [part1, part2] = @vtx[0]._serialized
+    [part1, part2] = @tx[0]._serialized
     Buffer.concat([part1, en1, en2, part2])
 
   checkTime: (time) ->
@@ -106,7 +106,7 @@ class BlockTemplate extends halfnode.Block
     @merkleroot = merkleroot_int
     @time = time
     @nonce = nonce
-    @vtx[0].setExtraNonce(Buffer.concat([extranonce1_bin, extranonce2_bin]))
+    @tx[0].setExtraNonce(Buffer.concat([extranonce1_bin, extranonce2_bin]))
     @sha256 = null
     @scrypt = null
 

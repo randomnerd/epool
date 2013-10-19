@@ -123,9 +123,9 @@ class Block
     r.push binpack.packUInt32(@version, 'little')
     r.push util.ser_uint256(@prevblock)
     r.push util.ser_uint256(@merkleroot)
-    r.push binpack.packUInt32(@time, 'little')
+    r.push binpack.packUInt32(@time.toNumber(), 'little')
     r.push binpack.packUInt32(@bits.toNumber(), 'little')
-    r.push binpack.packUInt32(@nonce, 'little')
+    r.push binpack.packUInt32(@nonce.toNumber(), 'little')
     if full
       r.push util.ser_vector(@tx)
       r.push util.ser_string(@signature) if @pos

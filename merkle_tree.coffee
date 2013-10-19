@@ -43,7 +43,7 @@ class MerkleTree
     steps = @_steps
     for s in steps
       f = util.dblsha(new Buffers([f, s]).toBuffer())
-    return f
+    return new Buffers([f])
 
   merkleRoot: ->
     @withFirst(@data[0])

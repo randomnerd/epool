@@ -225,6 +225,7 @@ class TemplateRegistry
 
   submitBlock: (share, block_hex, block_hash_hex) ->
     logShare = (result) =>
+      console.log 'SUBMIT RESULT', result
       share.upstream = !!result
       share.upstreamReason = result
       @sharelogger.log(s)

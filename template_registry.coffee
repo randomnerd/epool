@@ -203,7 +203,7 @@ class TemplateRegistry
 
         try
           block_hash_bin = util.dblsha(util.reverse_bin(header_bin, 4))
-          share.block_hash_hex = util.hexlify(util.reverse_bin(block_hash_hex))
+          share.block_hash_hex = util.hexlify(util.reverse_bin(block_hash_bin))
 
           job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,
             new bigint(time, 16), new bigint(nonce, 16))

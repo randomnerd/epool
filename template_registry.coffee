@@ -86,12 +86,12 @@ class TemplateRegistry
     try
       template = new BlockTemplate(@algo, @pos, @coinbaser, @jobgen.getNewId())
 
-    template.fill_from_rpc(data)
-    @jobs = []
-    @addTemplate(template, data.height)
+      template.fill_from_rpc(data)
+      @jobs = []
+      @addTemplate(template, data.height)
 
-    console.log('Update finished, %s sec, %s txes',
-      (new Date() - start)/1000, template.vtx.length)
+      console.log('Update finished, %s sec, %s txes',
+        (new Date() - start)/1000, template.vtx.length)
     catch e
       console.log e, e.stack
     finally

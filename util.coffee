@@ -150,7 +150,7 @@ util =
 
   deser_string: (b) ->
     len = util.deserBufLen(b)
-    util.buf2string(util.bufShift(b,len))
+    util.bufShift(b,len)
 
   bufShift: (b, bytes) -> b.splice(0,bytes).toBuffer()
 
@@ -168,14 +168,17 @@ util =
   serBufLen: (len) ->
     r = []
     if len < 253
-      r += binpack.packUInt8(len, 'little')
+      r.push binpack.packUInt8(len)
     else if len < 0x10000
-      r += [253] + binpack.packUInt16(len, 'little')
+      r.push new Buffer([253])
+      r.push binpack.packUInt16(len, 'little')
     else if len < 0x100000000
-      r += [254] + binpack.packUInt32(len, 'little')
+      r.push new Buffer([254])
+      r.push binpack.packUInt32(len, 'little')
     else
-      r += [255] + binpack.packUInt64(len, 'little')
-    return new Buffer(r)
+      r.push new Buffer([255])
+      r.push binpack.packUInt64(len, 'little')
+    return Buffer.concat(r)
 
 
 module.exports = util

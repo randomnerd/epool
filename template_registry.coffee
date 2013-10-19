@@ -203,7 +203,7 @@ class TemplateRegistry
 
         try
           block_hash_bin = util.dblsha(util.reverse_bin(header_bin, 4))
-          share.block_hash_hex = util.hexlify(util.reverse_bin(header_bin))
+          share.block_hash_hex = util.hexlify(util.reverse_bin(block_hash_hex))
 
           job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,
             new bigint(time, 16), new bigint(nonce, 16))
@@ -224,6 +224,7 @@ class TemplateRegistry
       console.log e, e.stack
 
   submitBlock: (share, block_hex, block_hash_hex) ->
+    console.log "submit", block_hex, block_hash_hex
     logShare = (result) =>
       console.log 'SUBMIT RESULT', result
       share.upstream = !!result

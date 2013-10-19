@@ -11,7 +11,7 @@ class OutPoint
     @n = 0
 
   deserialize: (b) ->
-    b = new Buffers([b])
+    b = new Buffers([b]) unless b.splice
     @hash = util.deser_uint256(b)
     @n = binpack.unpackUInt32(util.bufShift(b,4), 'little')
 
@@ -28,7 +28,7 @@ class TransactionIn
     @sequence = 0
 
   deserialize: (b) ->
-    b = new Buffers([b])
+    b = new Buffers([b]) unless b.splice
     @prevout = new OutPoint()
     @prevout.deserialize(b)
     @scriptSig = util.deser_string(b)
@@ -47,7 +47,7 @@ class TransactionOut
     @scriptPubKey = ''
 
   deserialize: (b) ->
-    b = new Buffers([b])
+    b = new Buffers([b]) unless b.splice
     @value = binpack.unpackUInt64(util.bufShift(b,8), 'little')
     @scriptPubKey = util.deser_string(b)
 
@@ -78,7 +78,7 @@ class Transaction
     return Buffer.concat(b)
 
   deserialize: (b) ->
-    b = new Buffers([b])
+    b = new Buffers([b]) unless b.splice
     @version = binpack.unpackUInt32(util.bufShift(b,4), 'little')
     if @pos
       @time = binpack.unpackUInt32(util.bufShift(b,4), 'little')
@@ -108,7 +108,7 @@ class Block
     @signature = ''
 
   deserialize: (b) ->
-    b = new Buffers([b])
+    b = new Buffers([b]) unless b.splice
     @version = binpack.unpackUInt32(util.bufShift(b,4), 'little')
     @prevblock = util.deser_uint256(b)
     @merkleroot = util.deser_uint256(b)
@@ -133,26 +133,39 @@ class Block
 
   calc_sha256: ->
     b = @serialize(false)
-    @sha256 = util.deser_uint256(util.dblsha(b))
+    @sha256 = util.deser_uint256(new Buffers([util.dblsha(b)]))
 
   calc_scrypt: ->
     b = @serialize(false)
-    @scrypt = util.deser_uint256(util.scrypt(b))
+    @scrypt = util.deser_uint256(new Buffers([util.scrypt(b)]))
 
   test: ->
     block = require "./test_#{@algo}_block"
     @version = block.version
-    @prevBlock = new bigint(block.previousblockhash, 16)
-    @merkleRoot = new bigint(block.merkleroot, 16)
-    @time = block.time
+    @prevblock = new bigint(block.previousblockhash, 16)
+    @merkleroot = new bigint(block.merkleroot, 16)
+    @time = new bigint(block.time)
     @bits = new bigint(block.bits, 16)
-    @nonce = block.nonce
+    @nonce = new bigint(block.nonce)
 
     @hash = new bigint(block.hash, 16)
     @["calc_#{@algo}"]()
+    @calc_sha256()
     target = util.uint256_from_compact(@bits)
+    h = new bigint(block.hash, 16).toString(16)
+    unless h == @sha256.toString(16)
+      console.log @sha256.toString(16), h
+      throw 'test failed'
     throw 'test failed' unless @[@algo].lt(target)
-    console.log @[@algo].toString(16), block.hash
+
+    for tx in block.transactions
+      t = new Transaction()
+      t.deserialize(util.unhexlify(tx.data))
+      ser = util.hexlify(t.serialize())
+      console.log 'tx data:', tx.data
+      # console.log 'tx:', t
+      console.log 'tx data:', ser.split('ffaaffaa')
+      console.log tx.data.length, ser.length
 
 halfnode =
   OutPoint: OutPoint

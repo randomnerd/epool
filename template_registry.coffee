@@ -120,95 +120,98 @@ class TemplateRegistry
     return j
 
   submitShare: (defer, jobId, workerName, session, extranonce1_bin, extranonce2, time, nonce, diff) ->
-    share =
-      time: new Date()
-      username: workerName
-      diff: 0
-      accepted: false
-      upstream: false
+    try
+      share =
+        time: new Date()
+        username: workerName
+        diff: 0
+        accepted: false
+        upstream: false
 
-    if extranonce2.length != @extranonce2_size * 2
-      defer.reject("Incorrect size of extranonce2. Expected \
-        #{@extranonce2_size*2} chars, got #{extranonce2.length}")
+      if extranonce2.length != @extranonce2_size * 2
+        defer.reject("Incorrect size of extranonce2. Expected \
+          #{@extranonce2_size*2} chars, got #{extranonce2.length}")
 
-    job = @getJob(jobId)
+      job = @getJob(jobId)
 
-    unless job
-      defer.reject('Job %s not found', jobId)
-      return @sharelogger.log(share)
+      unless job
+        defer.reject('Job %s not found', jobId)
+        return @sharelogger.log(share)
 
-    unless time.length == 8
-      defer.reject('Incorrect size of ntime. Expected 8 chars')
-      return @sharelogger.log(share)
+      unless time.length == 8
+        defer.reject('Incorrect size of ntime. Expected 8 chars')
+        return @sharelogger.log(share)
 
-    unless job.checkTime(parseInt(time, 16))
-      defer.reject('Ntime out of range')
-      return @sharelogger.log(share)
+      unless job.checkTime(parseInt(time, 16))
+        defer.reject('Ntime out of range')
+        return @sharelogger.log(share)
 
-    unless nonce.length == 8
-      defer.reject('Incorrect size of nonce. Expected 8 chars')
-      return @sharelogger.log(share)
+      unless nonce.length == 8
+        defer.reject('Incorrect size of nonce. Expected 8 chars')
+        return @sharelogger.log(share)
 
-    unless job.registerSubmit(extranonce1_bin, extranonce2, time, nonce)
-      console.log('Duplicate from %s, (%s, %s, %s, %s)',
-        worker_name, util.hexlify(extranonce1_bin), extranonce2, time, nonce)
-      defer.reject('Duplicate share')
-      return @sharelogger.log(share)
+      unless job.registerSubmit(extranonce1_bin, extranonce2, time, nonce)
+        console.log('Duplicate from %s, (%s, %s, %s, %s)',
+          worker_name, util.hexlify(extranonce1_bin), extranonce2, time, nonce)
+        defer.reject('Duplicate share')
+        return @sharelogger.log(share)
 
-    extranonce2_bin = util.unhexlify(extranonce2)
-    time_bin = util.unhexlify(time)
-    nonce_bin = util.unhexlify(nonce)
+      extranonce2_bin = util.unhexlify(extranonce2)
+      time_bin = util.unhexlify(time)
+      nonce_bin = util.unhexlify(nonce)
 
-    coinbase_bin = job.serializeCoinbase(extranonce1_bin, extranonce2_bin)
-    coinbase_hash = util.dblsha(coinbase_bin)
+      coinbase_bin = job.serializeCoinbase(extranonce1_bin, extranonce2_bin)
+      coinbase_hash = util.dblsha(coinbase_bin)
 
-    merkleroot_bin = job.merkletree.withFirst(coinbase_hash)
-    merkleroot_int = util.deser_uint256(merkleroot_bin)
+      merkleroot_bin = job.merkletree.withFirst(coinbase_hash)
+      merkleroot_int = util.deser_uint256(merkleroot_bin)
 
-    header_bin = job.serializeHeader(merkleroot_int, time_bin, nonce_bin)
+      header_bin = job.serializeHeader(merkleroot_int, time_bin, nonce_bin)
 
-    switch @algo.toLowerCase()
-      when 'scrypt'
-        hash_bin = util.scrypt(util.reverse_bin(header_bin, 4))
-      when 'sha256'
-        hash_bin = util.dblsha(util.reverse_bin(header_bin, 4))
-    hash_int = util.deser_uint256(hash_bin)
-    hash_hex = hash_int.toString(16)
-    share.hash = hash_hex
+      switch @algo.toLowerCase()
+        when 'scrypt'
+          hash_bin = util.scrypt(util.reverse_bin(header_bin, 4))
+        when 'sha256'
+          hash_bin = util.dblsha(util.reverse_bin(header_bin, 4))
+      hash_int = util.deser_uint256(hash_bin)
+      hash_hex = hash_int.toString(16)
+      share.hash = hash_hex
 
-    header_hex = util.hexlify(header_bin)
+      header_hex = util.hexlify(header_bin)
 
-    target_user = @diff2target(diff)
-    share.diff = @diff2target(hash_int).toNumber()
+      target_user = @diff2target(diff)
+      share.diff = @diff2target(hash_int).toNumber()
 
-    if hash_int.gt(target_user)
-      defer.reject('Share is above target')
-      return @sharelogger.log(share)
+      if hash_int.gt(target_user)
+        defer.reject('Share is above target')
+        return @sharelogger.log(share)
 
-    defer.resolve([true])
+      defer.resolve([true])
 
-    if hash_int.le(job.target)
-      console.log('Block candidate: %s', hash_hex)
+      if hash_int.le(job.target)
+        console.log('Block candidate: %s', hash_hex)
 
-      try
-        block_hash_bin = util.dblsha(util.reverse_bin(header_bin, 4))
-        share.block_hash_hex = util.hexlify(util.reverse_bin(header_bin))
+        try
+          block_hash_bin = util.dblsha(util.reverse_bin(header_bin, 4))
+          share.block_hash_hex = util.hexlify(util.reverse_bin(header_bin))
 
-        job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,
-          new bigint(time, 16), new bigint(nonce, 16))
+          job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,
+            new bigint(time, 16), new bigint(nonce, 16))
 
-        unless job.isValid()
-          console.log('Final job validation failed!')
+          unless job.isValid()
+            console.log('Final job validation failed!')
 
-        serialized = util.hexlify(job.serialize())
-        @submitBlock(share, serialized, share.block_hash_hex)
-      catch e
-        console.log e
-        console.dir e.stack
+          serialized = util.hexlify(job.serialize())
+          @submitBlock(share, serialized, share.block_hash_hex)
+        catch e
+          console.log e
+          console.dir e.stack
 
-    else
-      share.accepted = true
-      @sharelogger.log(share)
+      else
+        share.accepted = true
+        @sharelogger.log(share)
+    catch e
+      console.log e, e.stack
 
   submitBlock: (share, block_hex, block_hash_hex) ->
     logShare = (result) =>

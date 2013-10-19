@@ -39,6 +39,6 @@ class CoinbaseTX extends halfnode.Transaction
 
   setExtraNonce: (extranonce) ->
     [part1, part2] = @vin[0]._scriptSig_template
-    @vin[0].scriptSig = part1 + extranonce + part2
+    @vin[0].scriptSig = Buffer.concat([part1, extranonce, part2)
 
 module.exports = CoinbaseTX

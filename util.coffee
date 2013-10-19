@@ -59,7 +59,6 @@ util =
 
   deser_uint256: (u, be = false) ->
     format = if be then 'big' else 'little'
-    u = new Buffers([u])
     r = new bigint(0)
     for i in [0 ... 8]
       t = new bigint(binpack.unpackUInt32(util.bufShift(u, 4), format))
@@ -118,13 +117,12 @@ util =
   scrypt: (buf) -> scrypt(buf)
 
   ser_vector: (l) ->
-    b = new Buffers()
+    b = []
     b.push util.serBufLen(l.length)
     b.push i.serialize() for i in l
-    return b.toBuffer()
+    return Buffer.concat(b)
 
   deser_vector: (f, c) ->
-    f = new Buffers([f])
     bLen = util.deserBufLen(f)
     r = []
     for i in [0 ... bLen]
@@ -151,7 +149,6 @@ util =
     return new Buffer.concat([bLen, b])
 
   deser_string: (b) ->
-    b = new Buffers([b])
     len = util.deserBufLen(b)
     util.buf2string(util.bufShift(b,len))
 

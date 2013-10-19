@@ -48,7 +48,7 @@ class TemplateRegistry
     @updateBlock()
 
   getNewExtranonce1: -> @extranonceCounter.getNew()
-  getLastBroadcastArgs: -> @lastBlock.broadcast_args
+  getLastBroadcastArgs: -> @lastBlock?.broadcast_args
   addTemplate: (block, blockHeight) ->
     prevhash = block.prevhash_hex
     if @prevhashes[prevhash]
@@ -85,8 +85,6 @@ class TemplateRegistry
 
     try
       template = new BlockTemplate(@algo, @pos, @coinbaser, @jobgen.getNewId())
-    catch e
-      console.log e
 
     template.fill_from_rpc(data)
     @jobs = []
@@ -94,7 +92,10 @@ class TemplateRegistry
 
     console.log('Update finished, %s sec, %s txes',
       (new Date() - start)/1000, template.vtx.length)
-    @updateInProgress = false
+    catch e
+      console.log e, e.stack
+    finally
+      @updateInProgress = false
     return data
 
   diff2target: (diff) ->

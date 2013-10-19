@@ -119,6 +119,7 @@ class Block
     @signature = util.deser_string(b)
 
   serialize: (full = true) ->
+    console.log @prevblock, @merkleroot
     r = []
     r.push binpack.packUInt32(@version, 'little')
     r.push util.ser_uint256(@prevblock)

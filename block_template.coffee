@@ -32,7 +32,7 @@ class BlockTemplate extends halfnode.Block
 
     @height = data.height
     @version = data.version
-    @prevBlock = new bigint(data.previousblockhash, 16)
+    @prevblock = new bigint(data.previousblockhash, 16)
     @bits = new bigint(data.bits, 16)
     @curtime = data.curtime
     @timedelta = @curtime - util.unixtime()
@@ -103,7 +103,7 @@ class BlockTemplate extends halfnode.Block
     Buffer.concat(r)
 
   finalize: (merkleroot_int, extranonce1_bin, extranonce2_bin, time, nonce) ->
-    @hashMerkleRoot = merkleroot_int
+    @merkleroot = merkleroot_int
     @time = time
     @nonce = nonce
     @vtx[0].setExtraNonce(Buffer.concat([extranonce1_bin, extranonce2_bin]))

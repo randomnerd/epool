@@ -152,7 +152,11 @@ util =
     len = util.deserBufLen(b)
     util.buf2string(util.bufShift(b,len))
 
-  bufShift: (b, bytes) -> b.splice(0,bytes).toBuffer()
+  bufShift: (b, bytes) ->
+    try
+      b.splice(0,bytes).toBuffer()
+    catch e
+      new Buffers([b]).splice(0,bytes).toBuffer()
 
   deserBufLen: (b) ->
     nit = binpack.unpackUInt8(util.bufShift(b, 1))

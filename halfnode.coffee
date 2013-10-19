@@ -118,7 +118,7 @@ class Block
     @signature = util.deser_string(b)
 
   serialize: (full = true) ->
-    r = new Buffers([])
+    r = []
     r.push binpack.packUInt32(@version, 'little')
     r.push util.ser_uint256(@prevBlock)
     r.push util.ser_uint256(@merkleRoot)
@@ -128,7 +128,7 @@ class Block
     if full
       r.push util.ser_vector(@tx)
       r.push util.ser_string(@signature) if @pos
-    return r.toBuffer()
+    return Buffer.concat(r)
 
   calc_sha256: ->
     b = @serialize(false)

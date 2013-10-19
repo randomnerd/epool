@@ -119,7 +119,6 @@ class Block
     @signature = util.deser_string(b)
 
   serialize: (full = true) ->
-    console.log @prevblock, @merkleroot
     r = []
     r.push binpack.packUInt32(@version, 'little')
     r.push util.ser_uint256(@prevblock)
@@ -162,11 +161,12 @@ class Block
     for tx in block.transactions
       t = new Transaction()
       t.deserialize(util.unhexlify(tx.data))
+      @tx.push t
       ser = util.hexlify(t.serialize())
-      console.log 'tx data:', tx.data
-      # console.log 'tx:', t
-      console.log 'tx data:', ser.split('ffaaffaa')
-      console.log tx.data.length, ser.length
+      throw 'test failed, txlen' unless tx.data.length == ser.length
+      throw 'test failed, txdata' unless tx.data == ser
+
+    console.log @tx, util.hexlify(@serialize())
 
 halfnode =
   OutPoint: OutPoint

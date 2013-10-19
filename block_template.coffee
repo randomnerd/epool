@@ -38,14 +38,14 @@ class BlockTemplate extends halfnode.Block
     @timedelta = @curtime - util.unixtime()
     @merkletree = mt
     @target = util.uint256_from_compact(@bits)
-    @vtx = [ coinbase ]
+    @tx = [ coinbase ]
     console.log data.transactions.length, 'transactions to deserialize'
     i = 1
     for tx in data.transactions
       t = new halfnode.Transaction(@pos)
       console.log new Date(), 'deserialize tx', i
       t.deserialize(util.unhexlify(tx.data))
-      @vtx.push t
+      @tx.push t
       i++
     console.log 'deserialized transactions'
 

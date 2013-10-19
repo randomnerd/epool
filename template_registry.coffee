@@ -163,7 +163,7 @@ class TemplateRegistry
       coinbase_bin = job.serializeCoinbase(extranonce1_bin, extranonce2_bin)
       coinbase_hash = util.dblsha(coinbase_bin)
 
-      merkleroot_bin = job.merkletree.withFirst(coinbase_hash)
+      merkleroot_bin = new Buffers([job.merkletree.withFirst(coinbase_hash)])
       merkleroot_int = util.deser_uint256(merkleroot_bin)
 
       header_bin = job.serializeHeader(merkleroot_int, time_bin, nonce_bin)

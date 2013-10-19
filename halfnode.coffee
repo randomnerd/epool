@@ -108,6 +108,7 @@ class Block
     @signature = ''
 
   deserialize: (b) ->
+    b = new Buffers([b])
     @version = binpack.unpackUInt32(util.bufShift(b,4), 'little')
     @prevblock = util.deser_uint256(b)
     @merkleroot = util.deser_uint256(b)

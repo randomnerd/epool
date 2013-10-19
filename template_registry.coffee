@@ -131,31 +131,38 @@ class TemplateRegistry
         upstream: false
 
       if extranonce2.length != @extranonce2_size * 2
-        defer.reject("Incorrect size of extranonce2. Expected \
-          #{@extranonce2_size*2} chars, got #{extranonce2.length}")
+        share.rejectReason = "Incorrect size of extranonce2. Expected \
+          #{@extranonce2_size*2} chars, got #{extranonce2.length}"
+        defer.reject(reason)
+        return @sharelogger.log(share)
 
       job = @getJob(jobId)
 
       unless job
-        defer.reject('Job %s not found', jobId)
+        share.rejectReason = "Job #{jobId} not found"
+        defer.reject(share.rejectReason)
         return @sharelogger.log(share)
 
       unless time.length == 8
-        defer.reject('Incorrect size of ntime. Expected 8 chars')
+        share.rejectReason = 'Incorrect size of ntime. Expected 8 chars'
+        defer.reject(share.rejectReason)
         return @sharelogger.log(share)
 
       unless job.checkTime(parseInt(time, 16))
-        defer.reject('Ntime out of range')
+        share.rejectReason = 'Ntime out of range'
+        defer.reject(share.rejectReason)
         return @sharelogger.log(share)
 
       unless nonce.length == 8
-        defer.reject('Incorrect size of nonce. Expected 8 chars')
+        share.rejectReason = 'Ntime out of range'
+        defer.reject(share.rejectReason)
         return @sharelogger.log(share)
 
       unless job.registerSubmit(extranonce1_bin, extranonce2, time, nonce)
         console.log('Duplicate from %s, (%s, %s, %s, %s)',
           worker_name, util.hexlify(extranonce1_bin), extranonce2, time, nonce)
-        defer.reject('Duplicate share')
+        share.rejectReason = 'Duplicate share'
+        defer.reject(share.rejectReason)
         return @sharelogger.log(share)
 
       extranonce2_bin = util.unhexlify(extranonce2)
@@ -185,7 +192,8 @@ class TemplateRegistry
       share.diff = @diff2target(hash_int).toNumber()
 
       if hash_int.gt(target_user)
-        defer.reject('Share is above target')
+        share.rejectReason = 'Share is above target'
+        defer.reject(share.rejectReason)
         return @sharelogger.log(share)
 
       defer.resolve([true])

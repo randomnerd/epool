@@ -2,6 +2,7 @@ BlockTemplate = require './block_template'
 binpack = require 'binpack'
 bigint = require 'bigint'
 util = require './util'
+Buffers = require 'buffers'
 
 class JobIdGenerator
   constructor: -> @counter = 0

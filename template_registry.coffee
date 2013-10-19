@@ -227,8 +227,8 @@ class TemplateRegistry
     console.log "submit", block_hex, block_hash_hex
     logShare = (result) =>
       console.log 'SUBMIT RESULT', result
-      share.upstream = !!result
-      share.upstreamReason = result
+      share.upstream = !result
+      share.upstreamReason = result if result
       @sharelogger.log(s)
     tryGBT = (e) =>
       @rpc.call('getblocktemplate', [{mode: 'submit', data: block_hex}]).then(

@@ -121,8 +121,8 @@ class Block
   serialize: (full = true) ->
     r = []
     r.push binpack.packUInt32(@version, 'little')
-    r.push util.ser_uint256(@prevBlock)
-    r.push util.ser_uint256(@merkleRoot)
+    r.push util.ser_uint256(@prevblock)
+    r.push util.ser_uint256(@merkleroot)
     r.push binpack.packUInt32(@time, 'little')
     r.push binpack.packUInt32(@bits.toNumber(), 'little')
     r.push binpack.packUInt32(@nonce, 'little')

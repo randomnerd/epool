@@ -204,6 +204,7 @@ class TemplateRegistry
         @submitBlock(share, serialized, share.block_hash_hex)
       catch e
         console.log e
+        console.dir e.stack
 
     else
       share.accepted = true

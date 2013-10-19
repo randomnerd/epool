@@ -6,12 +6,12 @@
     "start": "node --nouse-idle-notification --expose-gc main.js"
   },
   "dependencies": {
-    "stratum": "0.0.5",
+    "stratum": "git+ssh://git@github.com/erundook/node-stratum.git#fixes",
     "bigint": "~0.4.2",
     "binpack": "0.0.14",
     "buffers": "~0.1.1",
     "underscore": "~1.5.2",
-    "litecoin-scrypt": "0.0.1",
+    "litecoin-scrypt": "0.0.7",
     "coffee-script": "~1.6.3"
   }
 }

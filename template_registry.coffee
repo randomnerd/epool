@@ -88,6 +88,7 @@ class TemplateRegistry
       console.log e
 
     template.fill_from_rpc(data)
+    @jobs = []
     @addTemplate(template, data.height)
 
     console.log('Update finished, %s sec, %s txes',

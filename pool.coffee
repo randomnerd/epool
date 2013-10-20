@@ -14,21 +14,12 @@ class Pool
     @varDiffMax = config.varDiffMax
     @varDiffWindow = config.varDiffWindow
     @server = stratum.Server.create
-      rpc:
-        host: config.rpcHost
-        port: config.rpcPort
-        password: config.rpcPass
       settings:
         hostname: config.hostname
         toobusy: config.toobusy
         host: config.stratumHost
         port: config.stratumPort
     @server.on 'mining', (r,d,c) => @onMining(r,d,c)
-
-    @server.rpc.expose 'mining.block', (args, conn, cb) =>
-      @registry.updateBlock()
-      console.log 'Block notification received, updating block template...'
-      cb(null, true)
 
     @daemon = stratum.Daemon.create
       name: config.coinName
@@ -58,6 +49,14 @@ class Pool
 
   onMining: (req, def, client) ->
     switch req.method
+      when 'update_block'
+        unless @config.rpcPass == req.params[0]
+          def.resolve([false])
+          return
+
+        console.log 'Block notification received, updating block template...'
+        @registry.updateBlock()
+        def.resolve([true])
       when 'subscribe'
         @onSubscribe(client, req.params, def)
       when 'submit'

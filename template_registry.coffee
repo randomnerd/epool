@@ -206,11 +206,7 @@ class TemplateRegistry
           job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,
             new bigint(time, 16), new bigint(nonce, 16))
 
-          switch @algo.toLowerCase()
-            when 'scrypt'
-              share.block_hash = job.calc_scrypt_hex()
-            when 'sha256'
-              share.block_hash = job.calc_sha256_hex()
+          share.block_hash = job.calc_sha256_hex()
 
           unless job.isValid()
             console.log('Final job validation failed!')

@@ -163,8 +163,9 @@ class Block
       throw 'hash test failed'
     throw 'target test failed' unless @[@algo].lt(target)
 
-    for tx in block.transactions
-      t = new Transaction()
+    txs = if @pos then block.pos_transactions else block.transactions
+    for tx in txs
+      t = new Transaction(@pos)
       t.deserialize(util.unhexlify(tx.data))
       @tx.push t
       ser = util.hexlify(t.serialize())

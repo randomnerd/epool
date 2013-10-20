@@ -48,7 +48,7 @@ util =
 
   ser_uint256: (u, be = false) ->
     format = if be then 'big' else 'little'
-    u = new bigint(u)
+    u = new bigint(u) unless u.div
     rs = []
     for i in [0 ... 8]
       long = u.and(0xFFFFFFFF).toNumber()
@@ -58,6 +58,7 @@ util =
     return Buffer.concat(rs)
 
   deser_uint256: (u, be = false) ->
+    u = new Buffers([u]) unless u.splice
     format = if be then 'big' else 'little'
     r = new bigint(0)
     for i in [0 ... 8]

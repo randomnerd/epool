@@ -15,6 +15,16 @@ block = {
             "sigops" : 2
         }
     ],
+    "pos_transactions" : [
+        {
+            "data" : "010000008b3464520188a1d830f34c18ca114170dd39f2b140e38ff074090e93f3b5163042ad9e7677010000006b483045022064af40dd98a59678a08af8dd3923c3ccce0542e95b46c779b2e432a63b7c2e04022100f0eae4a61ffa6bf5e1f1ae60cd0598f4405c47b38f2b43f963493cb5081482fc0121031041bcbe3beb7b2d5bde701013a02ba2c6f8e9e4843ce2da153e175921f5242cffffffff0120f40e00000000001976a91401478397e81087aebeaac7e147bca5cd4ad4608b88ac00000000",
+            "hash" : "d1919f556bb54da5e24751ca8aa3260128db4e30cdef581edc503b0446ffcfb0",
+            "fee" : 16170,
+            "depends" : [
+            ],
+            "sigops" : 1
+        }
+    ],
     "tx" : [
         "5169eba8477f35a4623198add6bb3c807aa9709a8e7f3456d72b7263423c8e8a",
         "ddacc4b8ca0c6450ed39668dbe6c872382c8c042933fd721fa0a0d21792a3c01"

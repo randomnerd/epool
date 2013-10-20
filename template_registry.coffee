@@ -108,9 +108,7 @@ class TemplateRegistry
     diff1.div(diff)
 
   getJob: (jobId) ->
-    unless j = @jobs[jobId]
-      console.log('Job id %s not found', jobId)
-      return
+    return unless j = @jobs[jobId]
 
     unless @prevhashes[j.prevhash_hex]
       console.log('Prevhash of job %s is unknown', jobId)

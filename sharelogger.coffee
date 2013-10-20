@@ -33,9 +33,9 @@ class ShareLogger
     console.log "hashrate calc: %s d1s in %s seconds", d1s, seconds
     switch @algo.toLowerCase()
       when 'scrypt'
-        @hashrates[name] = d1s.mul(67108864).div(seconds)
+        @hashrates[name] = d1s.mul(67108864).div(seconds).div(1000000000)
       when 'sha256'
-        @hashrates[name] = d1s.mul(4294967296).div(seconds)
+        @hashrates[name] = d1s.mul(4294967296).div(seconds).div(1000000)
 
   truncateBuffer: (buf, minutes) ->
     i = 0

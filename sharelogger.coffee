@@ -24,6 +24,7 @@ class ShareLogger
     return unless buf.length
 
     seconds = (buf[buf.length-1][0] - buf[0][0]) / 1000
+    return unless seconds
     d1s = new bigint(0)
     d1s = d1s.add(s[1]) for s in buf
     console.log "hashrate calc: %s d1s in %s seconds", d1s, seconds

@@ -81,7 +81,6 @@ class TemplateRegistry
     @updateInProgress = false
 
   _updateBlock: (data) ->
-    console.log @lasthash, data.previousblockhash
     return @updateInProgress = false if @lasthash  == data.previousblockhash
     @lasthash = data.previousblockhash
 

@@ -36,8 +36,7 @@ class ShareLogger
   truncateBuffer: (buf, minutes) ->
     i = 0
     for s in buf
-      console.log util.minutesFrom(s[0]), minutes
-      break if util.minutesFrom(s[0]) < minutes
+      break if util.minutesFrom(s[0]) > minutes
       i++
 
     buf.splice(i)

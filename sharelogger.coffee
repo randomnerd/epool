@@ -19,6 +19,7 @@ class ShareLogger
 
   updateStats: (share) ->
     stat = @stats[share.username] ||=
+      diff:     share.diff_target
       blocks:   0
       accepted: 0
       rejected: 0

@@ -5,7 +5,7 @@ class ShareLogger
   constructor: (algo, params) ->
     @algo = algo
     @params = params
-    @sharerates = {}
+    @hashrates = {}
     @shareBuffer = {}
 
   log: (share) ->

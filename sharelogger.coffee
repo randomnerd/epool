@@ -25,7 +25,7 @@ class ShareLogger
       rejected: 0
       hashrate: 0
 
-    stat.diff = share.diff
+    stat.diff = share.diff_target
     stat.blocks++ if share.upstream
 
     if share.accepted

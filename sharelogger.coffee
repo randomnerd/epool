@@ -46,7 +46,7 @@ class ShareLogger
     return unless seconds
     d1s = new bigint(0)
     d1s = d1s.add(s[1]) for s in buf
-    @stats[name].hashrate = d1s.mul(65536).div(seconds).div(1000)
+    @stats[name].hashrate = d1s.mul(65536).div(seconds).div(1000).toNumber()
 
   truncateBuffer: (buf, minutes) ->
     i = 0

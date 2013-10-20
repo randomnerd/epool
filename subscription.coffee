@@ -41,6 +41,7 @@ class Subscription
     console.log 'perMin:', @sharesPerMin()
     return unless @minsSinceLastDiffUpd() >= window
     newDiff = Math.round(@sharesPerMin() / perMin * @diff)
+    @submits = 0
     @setDiff(newDiff)
 
 module.exports = Subscription

@@ -9,9 +9,12 @@ class ShareLogger
     @shareBuffer = {}
 
   log: (share) ->
-    @updateBuffer(share)
-    @updateHashrate(share.workername)
-    console.log share, @hashrates[share.workername]
+    try
+      @updateBuffer(share)
+      @updateHashrate(share.workername)
+      console.log share, @hashrates[share.workername]
+    catch e
+      console.log e, e.stack
 
   updateBuffer: (share) ->
     buf = @shareBuffer[share.workername] ||= []

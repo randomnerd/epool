@@ -39,11 +39,11 @@ class ShareLogger
 
   updateHashrate: (name) ->
     buf = @shareBuffer[name]
-    @stats[name].hashrate ||= new bigint(0)
+    @stats[name].hashrate ||= 0
     return unless buf.length
 
     seconds = (buf[buf.length-1][0] - buf[0][0]) / 1000
-    return unless seconds
+    return unless seconds > 30
     d1s = new bigint(0)
     d1s = d1s.add(s[1]) for s in buf
     @stats[name].hashrate = d1s.mul(65536).div(seconds).div(1000).toNumber()

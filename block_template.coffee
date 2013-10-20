@@ -39,15 +39,10 @@ class BlockTemplate extends halfnode.Block
     @merkletree = mt
     @target = util.uint256_from_compact(@bits)
     @tx = [ coinbase ]
-    console.log data.transactions.length, 'transactions to deserialize'
-    i = 1
     for tx in data.transactions
       t = new halfnode.Transaction(@pos)
-      console.log new Date(), 'deserialize tx', i
       t.deserialize(util.unhexlify(tx.data))
       @tx.push t
-      i++
-    console.log 'deserialized transactions'
 
     @prevhash_bin = util.unhexlify(util.reverse_hash(data.previousblockhash))
     @prevhash_hex = data.previousblockhash

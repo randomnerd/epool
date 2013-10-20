@@ -9,6 +9,10 @@ class Pool
     @subs = {}
     @config = config
     @sharelogger = new ShareLogger(config.sharelogger)
+    @varDiff = config.varDiff
+    @varDiffSharesPerMin = config.varDiffSharesPerMin
+    @varDiffMax = config.varDiffMax
+    @varDiffWindow = config.varDiffWindow
     @server = stratum.Server.create
       rpc:
         host: config.rpcHost
@@ -88,6 +92,7 @@ class Pool
       sub.extranonce1_bin, extranonce2, ntime, nonce,
       sub.diff
     )
+    sub.updateDiff(@difficulty, @varDiffMax, @varDiffSharesPerMin, @varDiffWindow)
 
   start: ->
     @server.listen().then (msg) ->

@@ -63,9 +63,8 @@ class TemplateRegistry
     for ph, b in @prevhashes
       @prevhashes[ph] = undefined unless ph == prevhash
 
-    console.log "New template for", prevhash, newBlock
+    console.log "New template for", prevhash
 
-    @onBlockCB(prevhash, blockHeight) if newBlock
     @onTemplateCB(newBlock)
 
   updateBlock: ->
@@ -127,6 +126,7 @@ class TemplateRegistry
         time: new Date()
         username: workerName
         diff: 0
+        diff_target: diff
         accepted: false
         upstream: false
 
@@ -184,7 +184,7 @@ class TemplateRegistry
           hash_bin = util.dblsha(util.reverse_bin(header_bin, 4))
       hash_int = util.deser_uint256(new Buffers([hash_bin]))
       hash_hex = hash_int.toString(16)
-      share.hash = hash_hex
+      share.hash = util.pad_hex(hash_hex)
 
       header_hex = util.hexlify(header_bin)
 
@@ -228,6 +228,7 @@ class TemplateRegistry
       share.upstream = !result
       share.upstreamReason = result if result
       @sharelogger.log(share)
+      @onBlockCB(block_hash_hex) if share.upstream
     tryGBT = (e) =>
       @rpc.call('getblocktemplate', [{mode: 'submit', data: block_hex}]).then(
         ((r) => logShare(r)),

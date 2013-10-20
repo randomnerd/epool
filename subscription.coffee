@@ -3,7 +3,9 @@ util = require './util'
 
 class Subscription
   constructor: (client, params, registry, diff = 32) ->
+    @submits = 0
     @diff = diff
+    @lastDiffUpdate = null
     @session = {}
     @params = params
     @client = client
@@ -22,10 +24,20 @@ class Subscription
 
   setDiff: (diff) ->
     @diff = diff
+    @lastDiffUpdate = new Date()
     @client.set_difficulty(diff)
+
+  sharesPerMin: -> Math.round(@submits / mins)
+  minsSinceLastDiffUpd: -> (new Date() - @lastDiffUpdate) / 60 * 1000
 
   start: ->
     setTimeout (=> @setDiff(@diff)), 100
     [ @key, @extranonce1_hex, @extranonce2_size ]
+
+  updateDiff: (min, max, perMin, window) ->
+    @submits++
+    return unless @minsSinceLastDiffUpd() >= window
+    newDiff = Math.round(@sharesPerMin() / perMin * @diff)
+    @setDiff(newDiff)
 
 module.exports = Subscription

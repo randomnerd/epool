@@ -8,7 +8,7 @@ class Pool
   constructor: (config) ->
     @subs = {}
     @config = config
-    @sharelogger = new ShareLogger(config.sharelogger)
+    @sharelogger = new ShareLogger(config.algo, config.sharelogger)
     @varDiff = config.varDiff
     @varDiffSharesPerMin = config.varDiffSharesPerMin
     @varDiffMax = config.varDiffMax

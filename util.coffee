@@ -190,5 +190,6 @@ util =
       r.push binpack.packUInt64(len, 'little')
     return Buffer.concat(r)
 
+  minutesFrom: (time) -> (new Date() - time) / (60 * 1000)
 
 module.exports = util

@@ -1,8 +1,43 @@
+util = require './util'
+bigint = require 'bigint'
+
 class ShareLogger
-  constructor: (params) ->
+  constructor: (algo, params) ->
+    @algo = algo
     @params = params
+    @sharerates = {}
+    @shareBuffer = {}
 
   log: (share) ->
-    console.log share
+    @updateBuffer(share)
+    @updateHashrate(share.workername)
+    console.log share, @hashrates[share.workername]
+
+  updateBuffer: (share) ->
+    buf = @shareBuffer[share.workername] ||= []
+    @truncateBuffer(buf, 10)
+    buf.push [share.time, share.diff_target]
+
+  updateHashrate: (name) ->
+    buf = @shareBuffer[name]
+    @hashrates[name] ||= new bigint(0)
+    return unless buf.length
+
+    seconds = (buf[buf.length-1][0] - buf[0][0]) / 1000
+    d1s = new bigint(0)
+    d1s.add(buf[1]) for s in buf
+    switch @algo.toLowerCase()
+      when 'scrypt'
+        @hashrates[name] = d1s.mul(67108864)
+      when 'sha256'
+        @hashrates[name] = d1s.mul(4294967296)
+
+  truncateBuffer: (buf, minutes) ->
+    i = 0
+    for s in buf
+      break if util.minutesFrom(s[0]) < minutes
+      i++
+
+    buf.splice(i)
 
 module.exports = ShareLogger

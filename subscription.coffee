@@ -28,7 +28,7 @@ class Subscription
     @client.set_difficulty(diff)
 
   sharesPerMin: -> @submits / @minsSinceLastDiffUpd()
-  minsSinceLastDiffUpd: -> (new Date() - @lastDiffUpdate) / (60 * 1000)
+  minsSinceLastDiffUpd: -> util.minutesFrom(@lastDiffUpdate)
 
   start: ->
     setTimeout (=> @setDiff(@diff)), 100

@@ -19,12 +19,13 @@ class ShareLogger
 
   updateStats: (share) ->
     stat = @stats[share.username] ||=
-      diff:     share.diff_target
+      diff:     0
       blocks:   0
       accepted: 0
       rejected: 0
       hashrate: 0
 
+    stat.diff = share.diff
     stat.blocks++ if share.upstream
 
     if share.accepted

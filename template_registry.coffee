@@ -80,8 +80,8 @@ class TemplateRegistry
     @updateInProgress = false
 
   _updateBlock: (data) ->
-    pb = new bigint(data.previousblockhash, 16)
-    return if pb.toString() == @lastBlock?.prevhash.toString()
+    # pb = new bigint(data.previousblockhash, 16)
+    # return if pb.toString() == @lastBlock?.prevhash.toString()
     start = +new Date()
 
     try

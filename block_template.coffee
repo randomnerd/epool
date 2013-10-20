@@ -26,7 +26,7 @@ class BlockTemplate extends halfnode.Block
 
     mt = new MerkleTree(@txhashes)
     try
-      coinbase = new CoinbaseTX(@coinbaser, data.coinbasevalue, data.coinbaseaux.flags, data.height, cbExtras, @pos, data.curtime)
+      coinbase = new CoinbaseTX(@coinbaser, data.coinbasevalue, data.coinbaseaux.flags, data.height, cbExtras, @pos)
     catch e
       console.dir e.stack
 
@@ -100,6 +100,7 @@ class BlockTemplate extends halfnode.Block
   finalize: (merkleroot_int, extranonce1_bin, extranonce2_bin, time, nonce) ->
     @merkleroot = merkleroot_int
     @time = time
+    @tx[0].time = time if @pos
     @nonce = nonce
     @tx[0].setExtraNonce(Buffer.concat([extranonce1_bin, extranonce2_bin]))
     @sha256 = null

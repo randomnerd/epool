@@ -6,7 +6,7 @@ util = require './util'
 Buffers = require 'buffers'
 
 class CoinbaseTX extends halfnode.Transaction
-  constructor: (coinbaser, value, flags, height, data, pos = false, time = 0) ->
+  constructor: (coinbaser, value, flags, height, data, pos = false) ->
     super(pos)
 
     extranonce_ph = util.unhexlify('f000000ff111111f')

@@ -45,6 +45,7 @@ class TemplateRegistry
     @lastBlock = null
     @updateInProgress = false
     @lastUpdate = null
+    @lasthash = null
     @updateBlock()
 
   getNewExtranonce1: -> @extranonceCounter.getNew()
@@ -80,8 +81,9 @@ class TemplateRegistry
     @updateInProgress = false
 
   _updateBlock: (data) ->
-    # pb = new bigint(data.previousblockhash, 16)
-    # return if pb.toString() == @lastBlock?.prevhash.toString()
+    return if @lasthash  == data.previousblockhash
+    @lasthash = data.previousblockhash
+
     start = +new Date()
 
     try

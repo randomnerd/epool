@@ -128,7 +128,7 @@ class Block
     r.push binpack.packUInt32(@nonce.toNumber(), 'little')
     if full
       r.push util.ser_vector(@tx)
-      r.push new Buffer([0x00]) if @pos
+      r.push util.ser_string(@signature) if @pos
     return Buffer.concat(r)
 
   calc_sha256: ->

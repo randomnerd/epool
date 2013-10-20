@@ -38,7 +38,7 @@ util =
   script_to_pubkey: (pubkey) ->
     b = []
     b.push new Buffer([0x21])
-    b.push new Buffer(pubkey)
+    b.push util.unhexlify(pubkey)
     b.push new Buffer([0xAC])
     return Buffer.concat(b)
 

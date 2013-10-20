@@ -35,13 +35,11 @@ class Subscription
     [ @key, @extranonce1_hex, @extranonce2_size ]
 
   updateDiff: (min, max, perMin, window) ->
-    console.log 'updateDiff:', min, max, perMin, window
     @submits++
-    console.log 'sinceUpd', @minsSinceLastDiffUpd()
-    console.log 'perMin:', @sharesPerMin()
     return unless @minsSinceLastDiffUpd() >= window
-    newDiff = Math.round(@sharesPerMin() / perMin * @diff)
+    newDiff = Math.max(min, Math.round(@sharesPerMin() / perMin * @diff))
+    return if newDiff == @diff
     @submits = 0
-    @setDiff(newDiff)
+    @setDiff(Math.min(newDiff, max))
 
 module.exports = Subscription

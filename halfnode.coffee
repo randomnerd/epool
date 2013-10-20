@@ -71,7 +71,7 @@ class Transaction
     b = []
     b.push binpack.packUInt32(@version, 'little')
     if @pos
-      b.push binpack.packUInt32(@time, 'little')
+      b.push binpack.packUInt32(@time.toNumber(), 'little')
     b.push util.ser_vector(@vin)
     b.push util.ser_vector(@vout)
     b.push binpack.packUInt32(@lockTime, 'little')

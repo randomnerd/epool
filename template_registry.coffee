@@ -80,6 +80,7 @@ class TemplateRegistry
     @updateInProgress = false
 
   _updateBlock: (data) ->
+    return if data.previousblockhash == @lastBlock.prevhash
     start = +new Date()
 
     try

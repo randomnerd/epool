@@ -61,7 +61,7 @@ class Transaction
   constructor: (pos = false) ->
     @pos = pos
     @version = 1
-    @time = util.unixtime()
+    @time = 0
     @vin = []
     @vout = []
     @lockTime = 0

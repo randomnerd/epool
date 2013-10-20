@@ -27,7 +27,7 @@ class Subscription
     @lastDiffUpdate = new Date()
     @client.set_difficulty(diff)
 
-  sharesPerMin: -> Math.round(@submits / mins)
+  sharesPerMin: -> @submits / @minsSinceLastDiffUpd()
   minsSinceLastDiffUpd: -> (new Date() - @lastDiffUpdate) / 60 * 1000
 
   start: ->

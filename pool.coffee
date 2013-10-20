@@ -92,7 +92,8 @@ class Pool
       sub.extranonce1_bin, extranonce2, ntime, nonce,
       sub.diff
     )
-    sub.updateDiff(@difficulty, @varDiffMax, @varDiffSharesPerMin, @varDiffWindow)
+    sub.updateDiff(@config.difficulty, @varDiffMax,
+      @varDiffSharesPerMin, @varDiffWindow)
 
   start: ->
     @server.listen().then (msg) ->

@@ -135,9 +135,15 @@ class Block
     b = @serialize(false)
     @sha256 = util.deser_uint256(new Buffers([util.dblsha(b)]))
 
+  calc_sha256_hex: ->
+    util.pad_hex(@calc_sha256().toString(16), 32)
+
   calc_scrypt: ->
     b = @serialize(false)
     @scrypt = util.deser_uint256(new Buffers([util.scrypt(b)]))
+
+  calc_scrypt_hex: ->
+    util.pad_hex(@calc_scrypt().toString(16), 32)
 
   test: ->
     block = require "./test_#{@algo}_block"
@@ -150,13 +156,12 @@ class Block
 
     @hash = new bigint(block.hash, 16)
     @["calc_#{@algo}"]()
-    @calc_sha256()
     target = util.uint256_from_compact(@bits)
-    h = new bigint(block.hash, 16).toString(16)
-    unless h == @sha256.toString(16)
-      console.log @sha256.toString(16), h
-      throw 'test failed'
-    throw 'test failed' unless @[@algo].lt(target)
+
+    unless (hash = @calc_sha256_hex()) == block.hash
+      console.log hash, block.hash
+      throw 'hash test failed'
+    throw 'target test failed' unless @[@algo].lt(target)
 
     for tx in block.transactions
       t = new Transaction()
@@ -165,8 +170,6 @@ class Block
       ser = util.hexlify(t.serialize())
       throw 'test failed, txlen' unless tx.data.length == ser.length
       throw 'test failed, txdata' unless tx.data == ser
-
-    console.log @tx, util.hexlify(@serialize())
 
 halfnode =
   OutPoint: OutPoint

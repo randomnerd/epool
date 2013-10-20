@@ -208,9 +208,9 @@ class TemplateRegistry
 
           switch @algo.toLowerCase()
             when 'scrypt'
-              share.block_hash = job.calc_scrypt()
+              share.block_hash = job.calc_scrypt_hex()
             when 'sha256'
-              share.block_hash = job.calc_sha256()
+              share.block_hash = job.calc_sha256_hex()
 
           unless job.isValid()
             console.log('Final job validation failed!')

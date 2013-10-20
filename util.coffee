@@ -85,6 +85,14 @@ util =
       r += rp
     return r
 
+  pad_hex: (s, bytes = 32) ->
+    return s if s.length == bytes * 2
+
+    for i in [0...bytes*2-s.length]
+      s = "0" + s
+
+    return s
+
   reverse_bin: (b, step = 1) ->
     if step == 1
       return new Buffer(b.toString().split('').reverse().join(''))

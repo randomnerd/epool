@@ -13,7 +13,7 @@ class ShareLogger
     try
       @updateStats(share)
       console.log share.username, "stats: ", @stats[share.username]
-      console.log(share) if share.upstream || share.upstreamResult
+      console.log(share) if share.upstream || share.upstreamReason
     catch e
       console.log e, e.stack
 
@@ -24,9 +24,12 @@ class ShareLogger
       rejected: 0
       hashrate: 0
 
-    stat.blocks++   if share.upstream
-    stat.accepted++ if share.accepted
-    stat.rejected++ if share.rejected
+    stat.blocks++ if share.upstream
+
+    if share.accepted
+      stat.accepted++
+    else
+      stat.rejected++
 
     @updateBuffer(share)
     @updateHashrate(share.username)

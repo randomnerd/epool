@@ -18,7 +18,7 @@ class ShareLogger
 
   updateBuffer: (share) ->
     buf = @shareBuffer[share.workername] ||= []
-    @truncateBuffer(buf, 10)
+    # @truncateBuffer(buf, 10)
     buf.push [share.time, share.diff_target]
 
   updateHashrate: (name) ->

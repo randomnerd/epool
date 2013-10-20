@@ -203,8 +203,9 @@ class TemplateRegistry
         console.log('Block candidate: %s', hash_hex)
 
         try
-          block_hash_bin = util.dblsha(util.reverse_bin(header_bin, 4))
-          share.block_hash = util.hexlify(util.reverse_bin(block_hash_bin))
+          switch @algo.toLowerCase()
+            when 'scrypt' share.block_hash = job.calc_scrypt()
+            when 'sha256' share.block_hash = job.calc_sha256()
 
           job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,
             new bigint(time, 16), new bigint(nonce, 16))

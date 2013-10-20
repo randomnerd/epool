@@ -22,6 +22,7 @@ class ShareLogger
     buf = @shareBuffer[name]
     @hashrates[name] ||= new bigint(0)
     return unless buf.length
+    console.log buf
 
     seconds = (buf[buf.length-1][0] - buf[0][0]) / 1000
     d1s = new bigint(0)

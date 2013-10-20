@@ -204,8 +204,10 @@ class TemplateRegistry
 
         try
           switch @algo.toLowerCase()
-            when 'scrypt' share.block_hash = job.calc_scrypt()
-            when 'sha256' share.block_hash = job.calc_sha256()
+            when 'scrypt'
+              share.block_hash = job.calc_scrypt()
+            when 'sha256'
+              share.block_hash = job.calc_sha256()
 
           job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,
             new bigint(time, 16), new bigint(nonce, 16))

@@ -26,6 +26,7 @@ class ShareLogger
     seconds = (buf[buf.length-1][0] - buf[0][0]) / 1000
     d1s = new bigint(0)
     d1s.add(s[1]) for s in buf
+    console.log "hashrate calc: %s d1s in %s seconds", d1s, seconds
     switch @algo.toLowerCase()
       when 'scrypt'
         @hashrates[name] = d1s.mul(67108864)

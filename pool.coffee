@@ -54,9 +54,9 @@ class Pool
           def.resolve([false])
           return
 
+        def.resolve([true])
         console.log 'Block notification received, updating block template...'
         @registry.updateBlock()
-        def.resolve([true])
       when 'subscribe'
         @onSubscribe(client, req.params, def)
       when 'submit'

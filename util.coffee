@@ -85,7 +85,9 @@ util =
       r += rp
     return r
 
-  reverse_bin: (b, step) ->
+  reverse_bin: (b, step = 1) ->
+    if step == 1
+      return new Buffer(b.toString().split('').reverse().join(''))
     hex = util.hexlify(b)
     rhex = util.reverse_hex(hex, step * 2)
     return util.unhexlify(rhex)

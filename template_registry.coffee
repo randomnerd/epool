@@ -197,13 +197,14 @@ class TemplateRegistry
         return @sharelogger.log(share)
 
       defer.resolve([true])
+      share.accepted = true
 
       if hash_int.le(job.target)
         console.log('Block candidate: %s', hash_hex)
 
         try
           block_hash_bin = util.dblsha(util.reverse_bin(header_bin, 4))
-          share.block_hash_hex = util.hexlify(util.reverse_bin(block_hash_bin))
+          share.block_hash = util.hexlify(util.reverse_bin(block_hash_bin))
 
           job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,
             new bigint(time, 16), new bigint(nonce, 16))
@@ -212,21 +213,19 @@ class TemplateRegistry
             console.log('Final job validation failed!')
 
           serialized = util.hexlify(job.serialize())
-          @submitBlock(share, serialized, share.block_hash_hex)
+          @submitBlock(share, serialized, share.block_hash)
         catch e
           console.log e
           console.dir e.stack
 
       else
-        share.accepted = true
         @sharelogger.log(share)
     catch e
       console.log e, e.stack
 
   submitBlock: (share, block_hex, block_hash_hex) ->
-    console.log "submit", block_hex, block_hash_hex
+    console.log "submit", block_hex
     logShare = (result) =>
-      console.log 'SUBMIT RESULT', result
       share.upstream = !result
       share.upstreamReason = result if result
       @sharelogger.log(share)

@@ -22,7 +22,6 @@ class ShareLogger
     buf = @shareBuffer[name]
     @hashrates[name] ||= new bigint(0)
     return unless buf.length
-    console.log buf
 
     seconds = (buf[buf.length-1][0] - buf[0][0]) / 1000
     d1s = new bigint(0)
@@ -37,6 +36,7 @@ class ShareLogger
   truncateBuffer: (buf, minutes) ->
     i = 0
     for s in buf
+      console.log util.minutesFrom(s[0]), minutes
       break if util.minutesFrom(s[0]) < minutes
       i++
 

@@ -203,14 +203,14 @@ class TemplateRegistry
         console.log('Block candidate: %s', hash_hex)
 
         try
+          job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,
+            new bigint(time, 16), new bigint(nonce, 16))
+
           switch @algo.toLowerCase()
             when 'scrypt'
               share.block_hash = job.calc_scrypt()
             when 'sha256'
               share.block_hash = job.calc_sha256()
-
-          job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,
-            new bigint(time, 16), new bigint(nonce, 16))
 
           unless job.isValid()
             console.log('Final job validation failed!')

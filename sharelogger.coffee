@@ -12,7 +12,7 @@ class ShareLogger
   log: (share) ->
     try
       @updateStats(share)
-      console.log @stats[share.username]
+      console.log share.username, "stats: ", @stats[share.username]
       console.log(share) if share.upstream || share.upstreamResult
     catch e
       console.log e, e.stack

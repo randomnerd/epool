@@ -100,7 +100,7 @@ class BlockTemplate extends halfnode.Block
   finalize: (merkleroot_int, extranonce1_bin, extranonce2_bin, time, nonce) ->
     @merkleroot = merkleroot_int
     @time = time
-    @tx[0].time = time if @pos
+    @tx[0].time = time.toNumber() if @pos
     @nonce = nonce
     @tx[0].setExtraNonce(Buffer.concat([extranonce1_bin, extranonce2_bin]))
     @sha256 = null

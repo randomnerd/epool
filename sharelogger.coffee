@@ -3,19 +3,66 @@ bigint = require 'bigint'
 
 class ShareLogger
   constructor: (algo, params) ->
+    @roundstart = new Date()
     @algo = algo
     @params = params
     @hashrates = {}
     @stats = {}
     @shareBuffer = {}
+    @modules = []
+    for module, config of params.modules?
+      try
+        @modules.push new (require("./sharelogger_modules/#{module}"))(config)
+      catch e
+        console.log e, e.stack
 
-  log: (share) ->
+  logShare: (share) ->
     try
       @updateStats(share)
+      for m in @modules
+        m.logShare(share)
+        m.logStats(@stats[share.username])
+
       console.log share.username, "stats: ", @stats[share.username]
       console.log(share) if share.upstream || share.upstreamReason
     catch e
       console.log e, e.stack
+
+  getUserId: (username) -> username.split('.')?[0]
+
+  calcRewards: (value) ->
+    rewards = {}
+    d1a = new bigint(0)
+    d1a = d1a.add(s.d1a) for w, s of @stats
+    for worker, stats of @stats
+      r = new bigint(value).div(d1a).mul(stats.d1a)
+      rewards[@getUserId(worker)] = r
+    return rewards
+
+  logBlock: (share, data, value) ->
+    unless block_data
+      @log(share)
+      return false
+
+    share.upstream = true
+    @logShare(share)
+
+    block =
+      time:       share.time
+      diff:       data.difficulty
+      hash:       share.block_hash
+      value:      value
+      height:     data.height
+      finder:     @getUserId(share.username)
+      rewards:    @calcRewards(value)
+      timeSpent:  (new Date() - @roundstart) / 1000
+
+    block.rewards = @calcRewards()
+
+    m.logBlock(block) for m in @modules
+
+    @roundstart = share.time
+    console.log(block)
 
   updateStats: (share) ->
     stat = @stats[share.username] ||=
@@ -33,13 +80,13 @@ class ShareLogger
     else
       stat.rejected++
 
-    @updateBuffer(share)
-    @updateHashrate(share.username)
-
+    if share.accepted
+      @updateBuffer(share)
+      @updateHashrate(share.username)
 
   updateBuffer: (share) ->
     buf = @shareBuffer[share.username] ||= []
-    @truncateBuffer(buf, 10)
+    @truncateBuffer(buf, 10) # FIXME: configurable time window
     buf.push [share.time, share.diff_target]
 
   updateHashrate: (name) ->
@@ -49,9 +96,10 @@ class ShareLogger
 
     seconds = (buf[buf.length-1][0] - buf[0][0]) / 1000
     return unless seconds > 30
-    d1s = new bigint(0)
-    d1s = d1s.add(s[1]) for s in buf
-    @stats[name].hashrate = d1s.mul(65536).div(seconds).div(1000).toNumber()
+    d1a = new bigint(0)
+    d1a = d1a.add(s[1]) for s in buf
+    @stats[name].d1a = d1a
+    @stats[name].hashrate = d1a.mul(65536).div(seconds).div(1000).toNumber()
 
   truncateBuffer: (buf, minutes) ->
     i = 0

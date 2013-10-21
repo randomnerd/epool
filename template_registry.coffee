@@ -136,36 +136,36 @@ class TemplateRegistry
         share.rejectReason = "Incorrect size of extranonce2. Expected \
           #{@extranonce2_size*2} chars, got #{extranonce2.length}"
         defer.reject(reason)
-        return @sharelogger.log(share)
+        return @sharelogger.logShare(share)
 
       job = @getJob(jobId)
 
       unless job
         share.rejectReason = "Job #{jobId} not found"
         defer.reject(share.rejectReason)
-        return @sharelogger.log(share)
+        return @sharelogger.logShare(share)
 
       unless time.length == 8
         share.rejectReason = 'Incorrect size of ntime. Expected 8 chars'
         defer.reject(share.rejectReason)
-        return @sharelogger.log(share)
+        return @sharelogger.logShare(share)
 
       unless job.checkTime(parseInt(time, 16))
         share.rejectReason = 'Ntime out of range'
         defer.reject(share.rejectReason)
-        return @sharelogger.log(share)
+        return @sharelogger.logShare(share)
 
       unless nonce.length == 8
         share.rejectReason = 'Ntime out of range'
         defer.reject(share.rejectReason)
-        return @sharelogger.log(share)
+        return @sharelogger.logShare(share)
 
       unless job.registerSubmit(extranonce1_bin, extranonce2, time, nonce)
         console.log('Duplicate from %s, (%s, %s, %s, %s)',
           worker_name, util.hexlify(extranonce1_bin), extranonce2, time, nonce)
         share.rejectReason = 'Duplicate share'
         defer.reject(share.rejectReason)
-        return @sharelogger.log(share)
+        return @sharelogger.logShare(share)
 
       extranonce2_bin = util.unhexlify(extranonce2)
       time_bin = util.unhexlify(time)
@@ -196,7 +196,7 @@ class TemplateRegistry
       if hash_int.gt(target_user)
         share.rejectReason = 'Share is above target'
         defer.reject(share.rejectReason)
-        return @sharelogger.log(share)
+        return @sharelogger.logShare(share)
 
       defer.resolve([true])
       share.accepted = true
@@ -208,29 +208,41 @@ class TemplateRegistry
           job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,
             new bigint(time, 16), new bigint(nonce, 16))
 
-          share.block_hash = job.calc_sha256_hex()
+          if @pos
+            share.block_hash = share.hash
+          else
+            share.block_hash = job.calc_sha256_hex()
 
           unless job.isValid()
             console.log('Final job validation failed!')
 
           serialized = util.hexlify(job.serialize())
-          @submitBlock(share, serialized, share.block_hash)
+          @submitBlock(share, serialized, job.value)
         catch e
           console.log e
           console.dir e.stack
 
       else
-        @sharelogger.log(share)
+        @sharelogger.logShare(share)
     catch e
       console.log e, e.stack
 
-  submitBlock: (share, block_hex, block_hash_hex) ->
+  submitBlock: (share, block_hex, value) ->
     console.log "submit", block_hex
+    checkBlock = (block_hash) =>
+
+      @rpc.call('getblock', [block_hash]).then(
+        ((r) => @sharelogger.logBlock(share, r, value)),
+        ((e) => @sharelogger.logShare(share))
+      )
+
     logShare = (result) =>
-      share.upstream = !result
-      share.upstreamReason = result if result
-      @sharelogger.log(share)
-      @onBlockCB(block_hash_hex) if share.upstream
+      if result
+        share.upstreamReason = result
+        @sharelogger.logShare(share)
+      else
+        checkBlock(share.block_hash)
+
     tryGBT = (e) =>
       @rpc.call('getblocktemplate', [{mode: 'submit', data: block_hex}]).then(
         ((r) => logShare(r)),

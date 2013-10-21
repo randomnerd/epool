@@ -45,7 +45,7 @@ class Pool
       ((err) -> console.log('Cant broadcast: %s', err) )
     )
 
-  onBlock: (prevhash, height) -> true # FIXME
+  onBlock: (share, block) -> true
 
   onMining: (req, def, client) ->
     switch req.method

@@ -30,6 +30,7 @@ class BlockTemplate extends halfnode.Block
     catch e
       console.dir e.stack
 
+    @value = data.coinbasevalue
     @height = data.height
     @version = data.version
     @prevblock = new bigint(data.previousblockhash, 16)

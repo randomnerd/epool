@@ -41,7 +41,7 @@ class ShareLogger
 
   logBlock: (share, data, value) ->
     try
-      unless block_data
+      unless data
         @log(share)
         return false
 

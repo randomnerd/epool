@@ -10,7 +10,7 @@ class ShareLogger
     @stats = {}
     @shareBuffer = {}
     @modules = []
-    for module, config of params.modules?
+    for module, config of params?.modules?
       try
         @modules.push new (require("./sharelogger_modules/#{module}"))(config)
       catch e

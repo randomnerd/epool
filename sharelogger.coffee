@@ -40,29 +40,32 @@ class ShareLogger
     return rewards
 
   logBlock: (share, data, value) ->
-    unless block_data
-      @log(share)
-      return false
+    try
+      unless block_data
+        @log(share)
+        return false
 
-    share.upstream = true
-    @logShare(share)
+      share.upstream = true
+      @logShare(share)
 
-    block =
-      time:       share.time
-      diff:       data.difficulty
-      hash:       share.block_hash
-      value:      value
-      height:     data.height
-      finder:     @getUserId(share.username)
-      rewards:    @calcRewards(value)
-      timeSpent:  (new Date() - @roundstart) / 1000
+      block =
+        time:       share.time
+        diff:       data.difficulty
+        hash:       share.block_hash
+        value:      value
+        height:     data.height
+        finder:     @getUserId(share.username)
+        rewards:    @calcRewards(value)
+        timeSpent:  (new Date() - @roundstart) / 1000
 
-    block.rewards = @calcRewards()
+      block.rewards = @calcRewards(value)
 
-    m.logBlock(block) for m in @modules
+      m.logBlock(block) for m in @modules
 
-    @roundstart = share.time
-    console.log(block)
+      @roundstart = share.time
+      console.log(block)
+    catch e
+      console.log e, e.stack
 
   updateStats: (share) ->
     stat = @stats[share.username] ||=
@@ -95,10 +98,10 @@ class ShareLogger
     return unless buf.length
 
     seconds = (buf[buf.length-1][0] - buf[0][0]) / 1000
-    return unless seconds > 30
     d1a = new bigint(0)
     d1a = d1a.add(s[1]) for s in buf
     @stats[name].d1a = d1a
+    return unless seconds > 30
     @stats[name].hashrate = d1a.mul(65536).div(seconds).div(1000).toNumber()
 
   truncateBuffer: (buf, minutes) ->

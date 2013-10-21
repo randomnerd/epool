@@ -96,11 +96,11 @@ class ShareLogger
     return unless buf.length
 
     seconds = (buf[buf.length-1][0] - buf[0][0]) / 1000
-    d1a = new bigint(0)
-    d1a = d1a.add(s[1]) for s in buf
+    d1a = 0
+    d1a += s[1] for s in buf
     @stats[name].d1a = d1a
     return unless seconds > 30
-    @stats[name].hashrate = d1a.mul(65536).div(seconds).div(1000).toNumber()
+    @stats[name].hashrate = new bigint(d1a).mul(65536).div(seconds).div(1000).toNumber()
 
   truncateBuffer: (buf, minutes) ->
     i = 0

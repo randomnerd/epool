@@ -30,16 +30,16 @@ class ShareLogger
 
   getUserId: (username) -> username.split('.')?[0]
 
-  calcRewards: (value) ->
+  calcRewards: ->
     rewards = {}
-    d1a = new bigint(0)
-    d1a = d1a.add(s.d1a) for w, s of @stats
+    d1a = 0
+    d1a += s.d1a for w, s of @stats
     for worker, stats of @stats
       rewards[@getUserId(worker)] ||= 0
-      rewards[@getUserId(worker)] += stats.d1a / d1a * value
+      rewards[@getUserId(worker)] += stats.d1a / d1a
     return rewards
 
-  logBlock: (share, data, value) ->
+  logBlock: (share, data) ->
     try
       unless data
         @log(share)
@@ -52,13 +52,11 @@ class ShareLogger
         time:       share.time
         diff:       data.difficulty
         hash:       share.block_hash
-        value:      value
+        txid:       data.tx[0]
         height:     data.height
         finder:     @getUserId(share.username)
-        rewards:    @calcRewards(value)
+        rewards:    @calcRewards()
         timeSpent:  (new Date() - @roundstart) / 1000
-
-      block.rewards = @calcRewards(value)
 
       m.logBlock(block) for m in @modules
 

@@ -217,7 +217,7 @@ class TemplateRegistry
             console.log('Final job validation failed!')
 
           serialized = util.hexlify(job.serialize())
-          @submitBlock(share, serialized, job.value)
+          @submitBlock(share, serialized)
         catch e
           console.log e
           console.dir e.stack
@@ -227,12 +227,12 @@ class TemplateRegistry
     catch e
       console.log e, e.stack
 
-  submitBlock: (share, block_hex, value) ->
+  submitBlock: (share, block_hex) ->
     console.log "submit", block_hex
     checkBlock = (block_hash) =>
 
       @rpc.call('getblock', [block_hash]).then(
-        ((r) => @sharelogger.logBlock(share, r, value)),
+        ((r) => @sharelogger.logBlock(share, r)),
         ((e) => @sharelogger.logShare(share))
       )
 

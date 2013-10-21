@@ -35,8 +35,8 @@ class ShareLogger
     d1a = new bigint(0)
     d1a = d1a.add(s.d1a) for w, s of @stats
     for worker, stats of @stats
-      r = new bigint(value).div(d1a).mul(stats.d1a)
-      rewards[@getUserId(worker)] = r
+      rewards[@getUserId(worker)] ||= 0
+      rewards[@getUserId(worker)] += stats.d1a / d1a * value
     return rewards
 
   logBlock: (share, data, value) ->

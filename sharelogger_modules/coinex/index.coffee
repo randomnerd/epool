@@ -43,9 +43,9 @@ CXUserShema = mg.Schema
   profile:
     nickname: String
 
-CXCurrency = mg.model 'currency', mg.Schema
-  _id: String
-  miningFee: Number
+CXCurrency = mg.model 'currency', mg.Schema(
+  { _id: String, miningFee: Number }
+), 'currencies'
 
 CXUserShema.methods.nickname = ->
   nickname = @profile?.nickname
@@ -102,11 +102,14 @@ class CoinExShareLogger extends ShareLogger
     return unless force || (new Date() - @lastFlush) / 1000 >= @flushInterval
     return unless @connected
 
-    @saveStats(@buffer.stats)
-    @saveBlock(block) for block in @buffer.blocks
-    @buffer.stats = []
-    @buffer.blocks = []
-    # @lastFlush = new Date()
+    try
+      @saveStats(@buffer.stats)
+      @saveBlock(block) for block in @buffer.blocks
+      @buffer.stats = []
+      @buffer.blocks = []
+      # @lastFlush = new Date()
+    catch e
+      console.log e, e.stack
 
   saveHrate: (userId, name, wrkName, hashrate) ->
     sel =
@@ -130,10 +133,9 @@ class CoinExShareLogger extends ShareLogger
         rec.save()
 
   saveStats: (stats) ->
-    hashrates = {}
     usernames = {}
 
-    updHrate = (data, cb) =>
+    updHrate = (data, cbx) =>
       [worker, stats] = data
       [userId, wrkName] = worker.split('.')
 
@@ -144,7 +146,7 @@ class CoinExShareLogger extends ShareLogger
         hashrates[userId] ||= 0
         hashrates[userId] += hrate
         @saveHrate(userId, usernames[userId], wrkName, hrate)
-        cb(null)
+        cbx(null)
 
     updTotal = (data, cb) =>
       [userId, hrate] = data

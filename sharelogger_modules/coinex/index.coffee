@@ -70,7 +70,6 @@ class CoinExShareLogger extends ShareLogger
 
   getPoolFee: (cb = null) ->
     CXCurrency.findOne {_id: @currId}, (e, curr) =>
-      console.log e, curr
       return cb(e) if e
       @poolFee = curr.miningFee || 0
       cb(null, @poolFee) if cb
@@ -95,7 +94,7 @@ class CoinExShareLogger extends ShareLogger
     @flush()
 
   logStats: (name, stats) ->
-    console.log(name, stats)
+    console.log([name, stats])
     @buffer.stats.push [name, stats]
     @flush()
 
@@ -207,6 +206,7 @@ class CoinExShareLogger extends ShareLogger
         reward:     stats.reward
         timeSpent:  block.timeSpent
 
+      console.log block
       block.save()
 
       return if block.cat == 'orphan'

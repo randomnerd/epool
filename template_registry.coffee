@@ -230,9 +230,14 @@ class TemplateRegistry
   submitBlock: (share, block_hex) ->
     console.log "submit", block_hex
     checkBlock = (block_hash) =>
-
       @rpc.call('getblock', [block_hash]).then(
-        ((r) => @sharelogger.logBlock(share, r)),
+        ((r) => checkTX(r)),
+        ((e) => @sharelogger.logShare(share))
+      )
+
+    checkTX = (block) =>
+      @rpc.call('gettransaction', [block.tx[0]]).then(
+        ((r) => @sharelogger.logBlock(share, block)),
         ((e) => @sharelogger.logShare(share))
       )
 

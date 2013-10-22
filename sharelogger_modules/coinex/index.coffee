@@ -154,15 +154,12 @@ class CoinExShareLogger extends ShareLogger
       async.each users, ((d, c) => @updateTotalHrate(d,c) ), -> true
 
   getPoolFee: (cb = null) ->
-    console.log 'getPoolFee'
     CXCurrency.findOne {_id: @currId}, (e, curr) =>
       return cb(e) if e
       @poolFee = curr.miningFee || 0
-      console.log 'getPoolFee =>', @poolFee
       cb(null, @poolFee) if cb
 
   getBlockStats: (txid, cb) ->
-    console.log 'getBlockStats', txid
     retStats = (data) =>
       console.log 'gbs', data
       details = data?.details?[0]
@@ -172,7 +169,6 @@ class CoinExShareLogger extends ShareLogger
         conf:   data.confirmations
         reward: details.amount * Math.pow(10, 8)
 
-      console.log 'getBlockStats =>', stats
       cb(null, stats)
 
     @rpc.call('gettransaction', [txid]).then(
@@ -181,11 +177,9 @@ class CoinExShareLogger extends ShareLogger
     )
 
   getBlockFinder: (userId, cb) ->
-    console.log 'getBlockFinder', userId
     CXUser.findOne {_id: userId}, (e, r) =>
       return cb(e) if e
       user = new CXUser(r)
-      console.log 'getBlockFinder =>', user.nickname()
       cb(null, user.nickname())
 
   saveBlock: (block) ->
@@ -214,21 +208,22 @@ class CoinExShareLogger extends ShareLogger
         timeSpent:  block.timeSpent
 
       console.log block
-      block.save()
+      block.save (e, ret) =>
+        console.log e, ret
 
-      return if block.cat == 'orphan'
+        return if block.cat == 'orphan'
 
-      poolFee = Math.round(block.reward / 100 * fee)
-      fullReward = block.reward - poolFee
+        poolFee = Math.round(block.reward / 100 * fee)
+        fullReward = block.reward - poolFee
 
-      for user, figure of block.rewards
-        bs = CXBlockStat.new
-          time:   new Date()
-          paid:   false
-          blkId:  block._id
-          currId: @currId
-          userId: user
-          reward: Math.floor(figure * fullReward)
-        bs.save()
+        for user, figure of block.rewards
+          bs = CXBlockStat.new
+            time:   new Date()
+            paid:   false
+            blkId:  block._id
+            currId: @currId
+            userId: user
+            reward: Math.floor(figure * fullReward)
+          bs.save()
 
 module.exports = CoinExShareLogger

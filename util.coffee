@@ -37,9 +37,6 @@ util =
     return Buffer.concat(b)
 
   script_to_pubkey: (pubkey) ->
-    if d = util.address_to_pubkeyhash(pubkey)
-      return util.script_to_address(pubkey)
-      # pubkey = util.hexlify(d[1])
     b = []
     b.push new Buffer([0x21])
     b.push util.unhexlify(pubkey)

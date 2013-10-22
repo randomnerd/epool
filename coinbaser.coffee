@@ -4,8 +4,8 @@ class SimpleCoinbaser
     @address = address
     @rpc = rpc
 
-  get_script_pubkey: (pos = false) ->
-    if pos
+  get_script_pubkey: (algo = 'sha256', pos = false) ->
+    if pos && algo == 'scrypt'
       util.script_to_pubkey(@address)
     else
       util.script_to_address(@address)

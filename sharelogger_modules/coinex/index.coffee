@@ -185,7 +185,7 @@ class CoinExShareLogger extends ShareLogger
 
   saveBlock: (block) ->
     async.series [
-      @getPoolFee
+      ((cb) => @getPoolFee(cb))
       ((cb) => @getBlockStats(block.txid, cb))
       ((cb) => @getBlockFinder(block.finder, cb))
     ], (e, ret) =>

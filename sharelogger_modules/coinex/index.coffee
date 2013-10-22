@@ -217,6 +217,7 @@ class CoinExShareLogger extends ShareLogger
         console.log block.rewards
         for user, figure of block.rewards
           bs = new CXBlockStat
+            _id:    Random.id()
             time:   new Date()
             paid:   false
             blkId:  blockRec._id

@@ -88,6 +88,7 @@ class CoinExShareLogger extends ShareLogger
     @flush()
 
   logStats: (name, stats) ->
+    return unless name.split('.').length == 2
     @buffer.stats[name] = stats
     @flush()
 

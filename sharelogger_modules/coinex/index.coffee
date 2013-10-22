@@ -214,8 +214,9 @@ class CoinExShareLogger extends ShareLogger
         poolFee = Math.round(blockRec.reward / 100 * fee)
         fullReward = blockRec.reward - poolFee
 
+        console.log block.rewards
         for user, figure of block.rewards
-          bs = CXBlockStat.new
+          bs = new CXBlockStat
             time:   new Date()
             paid:   false
             blkId:  blockRec._id

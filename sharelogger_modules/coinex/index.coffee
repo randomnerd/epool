@@ -89,12 +89,11 @@ class CoinExShareLogger extends ShareLogger
 
   logShare: (share) -> true
   logBlock: (block) ->
-    console.log(block)
     @buffer.blocks.push block
     @flush()
 
   logStats: (name, stats) ->
-    console.log([name, stats])
+    console.log name, stats
     @buffer.stats.push [name, stats]
     @flush()
 
@@ -188,6 +187,7 @@ class CoinExShareLogger extends ShareLogger
       ((cb) => @getBlockStats(block.txid, cb))
       ((cb) => @getBlockFinder(block.finder, cb))
     ], (e, ret) =>
+      console.log e, ret
       [fee, stats, finder] = ret
 
       block = new CXBlock

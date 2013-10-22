@@ -134,6 +134,7 @@ class CoinExShareLogger extends ShareLogger
 
   saveStats: (stats) ->
     usernames = {}
+    hashrates = {}
 
     updHrate = (data, cbx) =>
       [worker, stats] = data

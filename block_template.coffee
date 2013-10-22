@@ -26,7 +26,7 @@ class BlockTemplate extends halfnode.Block
 
     mt = new MerkleTree(@txhashes)
     try
-      coinbase = new CoinbaseTX(@coinbaser, data.coinbasevalue, data.coinbaseaux.flags, data.height, cbExtras, @pos, data.curtime)
+      coinbase = new CoinbaseTX(@coinbaser, data.coinbasevalue, data.coinbaseaux.flags, data.height, cbExtras, @algo, @pos, data.curtime)
     catch e
       console.dir e.stack
 

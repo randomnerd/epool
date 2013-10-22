@@ -58,7 +58,8 @@ class TransactionOut
     return Buffer.concat(r)
 
 class Transaction
-  constructor: (pos = false) ->
+  constructor: (pos = false, algo) ->
+    @algo = algo
     @pos = pos
     @version = 1
     @time = 0
@@ -66,6 +67,7 @@ class Transaction
     @vout = []
     @lockTime = 0
     @sha256 = null
+    @message = ''
 
   serialize: ->
     b = []
@@ -75,6 +77,8 @@ class Transaction
     b.push util.ser_vector(@vin)
     b.push util.ser_vector(@vout)
     b.push binpack.packUInt32(@lockTime, 'little')
+    if @pos && @algo == 'sha256'
+      b.push util.ser_string(@message)
     return Buffer.concat(b)
 
   deserialize: (b) ->
@@ -85,6 +89,8 @@ class Transaction
     @vin = util.deser_vector(b, TransactionIn)
     @vout = util.deser_vector(b, TransactionOut)
     @lockTime = binpack.unpackUInt32(util.bufShift(b,4), 'little')
+    if @pos && @algo == 'sha256'
+      @message = util.deser_string(b)
     @sha256 = null
 
   calc_sha256: ->
@@ -128,7 +134,7 @@ class Block
     r.push binpack.packUInt32(@nonce.toNumber(), 'little')
     if full
       r.push util.ser_vector(@tx)
-      r.push util.ser_string(@signature) if @pos
+      r.push util.ser_string(@signature)if @pos
     return Buffer.concat(r)
 
   calc_sha256: ->
@@ -165,7 +171,7 @@ class Block
 
     txs = if @pos then block.pos_transactions else block.transactions
     for tx in txs
-      t = new Transaction(@pos)
+      t = new Transaction(@pos, @algo)
       t.deserialize(util.unhexlify(tx.data))
       @tx.push t
       ser = util.hexlify(t.serialize())

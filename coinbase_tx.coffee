@@ -6,8 +6,8 @@ util = require './util'
 Buffers = require 'buffers'
 
 class CoinbaseTX extends halfnode.Transaction
-  constructor: (coinbaser, value, flags, height, data, pos = false, time) ->
-    super(pos)
+  constructor: (coinbaser, value, flags, height, data, algo, pos = false, time) ->
+    super(pos, algo)
 
     @time = time
 

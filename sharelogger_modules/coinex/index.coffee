@@ -190,7 +190,7 @@ class CoinExShareLogger extends ShareLogger
     ], (e, ret) =>
       [fee, stats, finder] = ret
 
-      block = new CXBlock
+      blockRec = new CXBlock
         _id:        Random.id()
         acc:        true
         cat:        stats.cat
@@ -206,19 +206,19 @@ class CoinExShareLogger extends ShareLogger
         reward:     stats.reward
         timeSpent:  block.timeSpent
 
-      block.save (e, ret) =>
+      blockRec.save (e, ret) =>
         console.log e, ret
 
-        return if block.cat == 'orphan'
+        return if blockRec.cat == 'orphan'
 
-        poolFee = Math.round(block.reward / 100 * fee)
-        fullReward = block.reward - poolFee
+        poolFee = Math.round(blockRec.reward / 100 * fee)
+        fullReward = blockRec.reward - poolFee
 
         for user, figure of block.rewards
           bs = CXBlockStat.new
             time:   new Date()
             paid:   false
-            blkId:  block._id
+            blkId:  blockRec._id
             currId: @currId
             userId: user
             reward: Math.floor(figure * fullReward)

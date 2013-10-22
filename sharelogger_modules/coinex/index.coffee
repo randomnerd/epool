@@ -62,7 +62,7 @@ class CoinExShareLogger extends ShareLogger
     @connected = false
     @connect()
     @currId = params.currencyId
-    @flushInterval = params.flushInterval || 60
+    @flushInterval = params.flushInterval || 10
     @poolFee = 0
     @buffer =
       lastFlush: null
@@ -140,6 +140,7 @@ class CoinExShareLogger extends ShareLogger
     users = []
 
     updHrate = (data, cbx) =>
+      console.log data
       [worker, stats] = data
       [userId, wrkName] = worker.split('.')
       users.push(userId) unless _.include(users, userId)

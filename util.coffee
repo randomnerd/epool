@@ -25,7 +25,6 @@ util =
     return unless util.buf2string(cksumA) == util.buf2string(cksumB)
     return [ver, addr[1..-5]]
 
-
   script_to_address: (addr) ->
     d = util.address_to_pubkeyhash(addr)
     throw 'invalid address' unless d
@@ -37,11 +36,11 @@ util =
     return Buffer.concat(b)
 
   script_to_pubkey: (pubkey) ->
-    if d = util.address_to_pubkeyhash(pubkey)
-      return util.script_to_address(pubkey)
-      # pubkey = util.hexlify(d[1])
     b = []
-    b.push new Buffer([0x21])
+    if pubkey[..1] == '04'
+      b.push new Buffer([0x41])
+    else
+      b.push new Buffer([0x21])
     b.push util.unhexlify(pubkey)
     b.push new Buffer([0xAC])
     return Buffer.concat(b)

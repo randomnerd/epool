@@ -1,4 +1,4 @@
-bigint = require 'bigint'
+bignum = require 'bignum'
 binpack = require 'binpack'
 crypto = require 'crypto'
 util = require './util'
@@ -148,13 +148,13 @@ class Block
   test: ->
     block = require "./test_#{@algo}_block"
     @version = block.version
-    @prevblock = new bigint(block.previousblockhash, 16)
-    @merkleroot = new bigint(block.merkleroot, 16)
-    @time = new bigint(block.time)
-    @bits = new bigint(block.bits, 16)
-    @nonce = new bigint(block.nonce)
+    @prevblock = new bignum(block.previousblockhash, 16)
+    @merkleroot = new bignum(block.merkleroot, 16)
+    @time = new bignum(block.time)
+    @bits = new bignum(block.bits, 16)
+    @nonce = new bignum(block.nonce)
 
-    @hash = new bigint(block.hash, 16)
+    @hash = new bignum(block.hash, 16)
     @["calc_#{@algo}"]()
     target = util.uint256_from_compact(@bits)
 

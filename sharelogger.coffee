@@ -1,8 +1,8 @@
 util = require './util'
-bigint = require 'bigint'
+bignum = require 'bignum'
 
 class ShareLogger
-  constructor: (algo, params) ->
+  constructor: (algo, params, rpc) ->
     @roundstart = new Date()
     @algo = algo
     @params = params
@@ -10,9 +10,9 @@ class ShareLogger
     @stats = {}
     @shareBuffer = {}
     @modules = []
-    for module, config of params?.modules?
+    for module, config of params?.modules
       try
-        @modules.push new (require("./sharelogger_modules/#{module}"))(config)
+        @modules.push new (require("./sharelogger_modules/#{module}"))(config, rpc)
       catch e
         console.log e, e.stack
 
@@ -21,10 +21,7 @@ class ShareLogger
       @updateStats(share)
       for m in @modules
         m.logShare(share)
-        m.logStats(@stats[share.username])
-
-      console.log share.username, "stats: ", @stats[share.username]
-      console.log(share) if share.upstream || share.upstreamReason
+        m.logStats(share.username, @stats[share.username])
     catch e
       console.log e, e.stack
 
@@ -61,7 +58,6 @@ class ShareLogger
       m.logBlock(block) for m in @modules
 
       @roundstart = share.time
-      console.log(block)
     catch e
       console.log e, e.stack
 
@@ -87,7 +83,7 @@ class ShareLogger
 
   updateBuffer: (share) ->
     buf = @shareBuffer[share.username] ||= []
-    @truncateBuffer(buf, 10) # FIXME: configurable time window
+    @truncateBuffer(buf, @params.shareTimeFrame) # FIXME: configurable time window
     buf.push [share.time, share.diff_target]
 
   updateHashrate: (name) ->
@@ -100,7 +96,7 @@ class ShareLogger
     d1a += s[1] for s in buf
     @stats[name].d1a = d1a
     return unless seconds > 30
-    @stats[name].hashrate = new bigint(d1a).mul(65536).div(seconds).div(1000).toNumber()
+    @stats[name].hashrate = new bignum(d1a).mul(65536).div(seconds).div(1000).toNumber()
 
   truncateBuffer: (buf, minutes) ->
     i = 0

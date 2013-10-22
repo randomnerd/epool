@@ -1,9 +1,9 @@
-bigint = require 'bigint'
+bignum = require 'bignum'
 
 class Base58Builder
   constructor: ->
     @alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-    @base = new bigint(@alphabet.length)
+    @base = new bignum(@alphabet.length)
 
   encode: (num) ->
     throw new Error('Value passed is not an integer.') unless /^\d+$/.test num
@@ -16,11 +16,11 @@ class Base58Builder
     @alphabet[num] + str
 
   decode: (str) ->
-    num = new bigint(0)
+    num = new bignum(0)
     for char, index in str.split(//).reverse()
       if (char_index = @alphabet.indexOf(char)) == -1
         throw new Error('Value passed is not a valid Base58 string.')
-      a = new bigint(char_index)
+      a = new bignum(char_index)
       num = num.add(a.mul(@base.pow(index)))
     num
 

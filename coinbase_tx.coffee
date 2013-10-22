@@ -1,5 +1,5 @@
 binpack = require 'binpack'
-bigint = require 'bigint'
+bignum = require 'bignum'
 halfnode = require './halfnode'
 coinbaser = require './coinbaser'
 util = require './util'

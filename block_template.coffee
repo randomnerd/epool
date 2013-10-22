@@ -1,4 +1,4 @@
-bigint = require 'bigint'
+bignum = require 'bignum'
 util = require './util'
 halfnode = require './halfnode'
 CoinbaseTX = require './coinbase_tx'
@@ -22,7 +22,7 @@ class BlockTemplate extends halfnode.Block
   fill_from_rpc: (data, cbExtras = '/stratumPool/') ->
     @txhashes = [null]
     for t in data.transactions
-      @txhashes.push util.ser_uint256(new bigint(t.hash, 16))
+      @txhashes.push util.ser_uint256(new bignum(t.hash, 16))
 
     mt = new MerkleTree(@txhashes)
     try
@@ -33,8 +33,8 @@ class BlockTemplate extends halfnode.Block
     @value = data.coinbasevalue
     @height = data.height
     @version = data.version
-    @prevblock = new bigint(data.previousblockhash, 16)
-    @bits = new bigint(data.bits, 16)
+    @prevblock = new bignum(data.previousblockhash, 16)
+    @bits = new bignum(data.bits, 16)
     @curtime = data.curtime
     @timedelta = @curtime - util.unixtime()
     @merkletree = mt

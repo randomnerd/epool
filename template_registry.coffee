@@ -1,6 +1,6 @@
 BlockTemplate = require './block_template'
 binpack = require 'binpack'
-bigint = require 'bigint'
+bignum = require 'bignum'
 util = require './util'
 Buffers = require 'buffers'
 
@@ -107,7 +107,7 @@ class TemplateRegistry
         d1 = '0000ffff00000000000000000000000000000000000000000000000000000000'
       when 'sha256'
         d1 = '00000000ffff0000000000000000000000000000000000000000000000000000'
-    diff1 = new bigint(d1, 16)
+    diff1 = new bignum(d1, 16)
     diff1.div(diff)
 
   getJob: (jobId) ->
@@ -206,7 +206,7 @@ class TemplateRegistry
 
         try
           job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,
-            new bigint(time, 16), new bigint(nonce, 16))
+            new bignum(time, 16), new bignum(nonce, 16))
 
           if @pos
             share.block_hash = share.hash

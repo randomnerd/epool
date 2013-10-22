@@ -8,7 +8,6 @@ class Pool
   constructor: (config) ->
     @subs = {}
     @config = config
-    @sharelogger = new ShareLogger(config.algo, config.sharelogger)
     @varDiff = config.varDiff
     @varDiffSharesPerMin = config.varDiffSharesPerMin
     @varDiffMax = config.varDiffMax
@@ -28,6 +27,7 @@ class Pool
       user: config.coinUser
       password: config.coinPass
 
+    @sharelogger = new ShareLogger(config.algo, config.sharelogger, @daemon)
     @coinbaser = new Coinbaser(@daemon, config.address)
     @registry = new TemplateRegistry(config.algo, config.pos, @sharelogger, @coinbaser, @daemon,
       ((n) => @onTemplate(n)),

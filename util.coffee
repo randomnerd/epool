@@ -1,7 +1,7 @@
 binpack = require 'binpack'
 crypto = require 'crypto'
 Buffers = require 'buffers'
-bigint = require 'bigint'
+bignum = require 'bignum'
 scrypt = require 'litecoin-scrypt'
 base58 = require './base58'
 util =
@@ -14,7 +14,7 @@ util =
     util.unhexlify(n.toString(16))
 
   num2bin: (n) ->
-    util.unhexlify(new bigint(n).toString(16))
+    util.unhexlify(new bignum(n).toString(16))
 
   address_to_pubkeyhash: (addr) ->
     addr = util.b58decode(addr)
@@ -48,7 +48,7 @@ util =
 
   ser_uint256: (u, be = false) ->
     format = if be then 'big' else 'little'
-    u = new bigint(u) unless u.div
+    u = new bignum(u) unless u.div
     rs = []
     for i in [0 ... 8]
       long = u.and(0xFFFFFFFF).toNumber()
@@ -60,9 +60,9 @@ util =
   deser_uint256: (u, be = false) ->
     u = new Buffers([u]) unless u.splice
     format = if be then 'big' else 'little'
-    r = new bigint(0)
+    r = new bignum(0)
     for i in [0 ... 8]
-      t = new bigint(binpack.unpackUInt32(util.bufShift(u, 4), format))
+      t = new bignum(binpack.unpackUInt32(util.bufShift(u, 4), format))
       long = t.shiftLeft(i * 32)
       r = r.add(long)
     return r

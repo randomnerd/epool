@@ -70,6 +70,8 @@ class CoinExShareLogger extends ShareLogger
 
   getPoolFee: (cb = null) ->
     CXCurrency.findOne {_id: @currId}, (e, curr) =>
+      console.log e, curr
+      return cb(e) if e
       @poolFee = curr.miningFee || 0
       cb(null, @poolFee) if cb
 

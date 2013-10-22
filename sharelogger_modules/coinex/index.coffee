@@ -68,12 +68,6 @@ class CoinExShareLogger extends ShareLogger
       stats:  []
       blocks: []
 
-  getPoolFee: (cb = null) ->
-    CXCurrency.findOne {_id: @currId}, (e, curr) =>
-      return cb(e) if e
-      @poolFee = curr.miningFee || 0
-      cb(null, @poolFee) if cb
-
   connect: ->
     console.log 'CoinEX sharelogger - connecting'
     @db = mg.connect(@params.dbString)
@@ -159,7 +153,16 @@ class CoinExShareLogger extends ShareLogger
     async.each stats, updHrate, =>
       async.each users, ((d, c) => @updateTotalHrate(d,c) ), -> true
 
+  getPoolFee: (cb = null) ->
+    console.log 'getPoolFee'
+    CXCurrency.findOne {_id: @currId}, (e, curr) =>
+      return cb(e) if e
+      @poolFee = curr.miningFee || 0
+      console.log 'getPoolFee =>', @poolFee
+      cb(null, @poolFee) if cb
+
   getBlockStats: (txid, cb) ->
+    console.log 'getBlockStats', txid
     retStats = (data) =>
       details = data?.details?[0]
       return cb('No details on tx') unless details
@@ -168,17 +171,20 @@ class CoinExShareLogger extends ShareLogger
         conf:   data.confirmations
         reward: details.amount * Math.pow(10, 8)
 
+      console.log 'getBlockStats =>', stats
       cb(null, stats)
 
     @rpc.call('gettransaction', [txid]).then(
       ((r) => retReward(r))
-      ((e) => cb(e))
+      ((e) => console.log e, cb(e))
     )
 
   getBlockFinder: (userId, cb) ->
+    console.log 'getBlockFinder', userId
     CXUser.findOne {_id: userId}, (e, r) =>
       return cb(e) if e
       user = new CXUser(r)
+      console.log 'getBlockFinder =>', user.nickname()
       cb(null, user.nickname())
 
   saveBlock: (block) ->

@@ -89,7 +89,7 @@ class CoinExShareLogger extends ShareLogger
   logShare: (share) -> true
   logBlock: (block) ->
     console.log(block)
-    @buffer.shares.push block
+    @buffer.blocks.push block
     @flush()
 
   logStats: (name, stats) ->
@@ -148,6 +148,7 @@ class CoinExShareLogger extends ShareLogger
 
     updTotal = (data, cb) =>
       [userId, hrate] = data
+      console.log 'total hashrate for %s: %s', userId, hrate
       @saveHrate(userId, usernames[userId], '__total__', hrate)
       cb(null)
 

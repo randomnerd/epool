@@ -176,7 +176,7 @@ class CoinExShareLogger extends ShareLogger
       cb(null, stats)
 
     @rpc.call('gettransaction', [txid]).then(
-      ((r) => retReward(r))
+      ((r) => retStats(r))
       ((e) => console.log e, cb(e))
     )
 

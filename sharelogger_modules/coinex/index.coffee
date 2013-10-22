@@ -164,6 +164,7 @@ class CoinExShareLogger extends ShareLogger
   getBlockStats: (txid, cb) ->
     console.log 'getBlockStats', txid
     retStats = (data) =>
+      console.log 'gbs', data
       details = data?.details?[0]
       return cb('No details on tx') unless details
       stats =

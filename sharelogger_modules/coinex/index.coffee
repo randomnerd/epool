@@ -134,33 +134,34 @@ class CoinExShareLogger extends ShareLogger
           hashrate: hashrate
         rec.save()
 
+  updateTotalHrate: (userId, cb) ->
+    sel = {currId: @currId, userId: userId, wrkName: {$ne: '__total__'}}
+    CXHashrate.find sel, (e, recs) =>
+      return if e || !recs.length
+      hrate = 0
+      name = recs[0].name
+      hrate += r.hashrate for r in recs
+      @saveHrate(userId, name, '__total__', hrate)
+      cb(null, true) if cb
+
   saveStats: (stats) ->
-    usernames = {}
-    hashrates = {}
+    users = []
 
     updHrate = (data, cbx) =>
       [worker, stats] = data
       [userId, wrkName] = worker.split('.')
+      users.push(userId) unless _.include(users, userId)
 
       CXUser.findOne {_id: userId}, (e, r) =>
         hrate = stats.hashrate / 1000
         user = new CXUser(r)
-        usernames[userId] ||= user.nickname()
         hashrates[userId] ||= 0
         hashrates[userId] += hrate
-        @saveHrate(userId, usernames[userId], wrkName, hrate)
+        @saveHrate(userId, user.nickname(), wrkName, hrate)
         cbx(null)
 
-    updTotal = (data, cb) =>
-      [userId, hrate] = data
-      console.log 'total hashrate for %s: %s', userId, hrate
-      @saveHrate(userId, usernames[userId], '__total__', hrate)
-      cb(null)
-
-    async.series [
-      ((cb) => async.each stats, updHrate, -> cb(null, true))
-      ((cb) => async.each _.pairs(hashrates), updTotal, -> cb(null, true))
-    ]
+    async.each stats, updHrate, =>
+      async.each users, @updateTotalHrate, -> true
 
   getBlockStats: (txid, cb) ->
     retStats = (data) =>

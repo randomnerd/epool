@@ -98,7 +98,7 @@ class ShareLogger
     return unless seconds > 30
     @stats[name].hashrate = new bignum(d1a).mul(65536).div(seconds).div(1000).toNumber()
     switch @algo
-      when 'sha256' then @stats[name].hashrate *= 64
+      when 'sha256' then @stats[name].hashrate *= 64 * 1000
 
   truncateBuffer: (buf, minutes) ->
     i = 0

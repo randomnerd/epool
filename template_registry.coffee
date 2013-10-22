@@ -202,7 +202,7 @@ class TemplateRegistry
       share.accepted = true
 
       if hash_int.le(job.target)
-        console.log('Block candidate: %s', hash_hex)
+        console.log('Block candidate: %s', util.pad_hex(hash_hex))
 
         try
           job.finalize(merkleroot_int, extranonce1_bin, extranonce2_bin,

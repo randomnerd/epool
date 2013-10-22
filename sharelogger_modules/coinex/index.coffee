@@ -62,11 +62,11 @@ class CoinExShareLogger extends ShareLogger
     @connected = false
     @connect()
     @currId = params.currencyId
-    @flushInterval = 60
+    @flushInterval = params.flushInterval || 60
     @poolFee = 0
     @buffer =
       lastFlush: null
-      stats:  []
+      stats:  {}
       blocks: []
 
   connect: ->
@@ -88,8 +88,7 @@ class CoinExShareLogger extends ShareLogger
     @flush()
 
   logStats: (name, stats) ->
-    console.log name, stats
-    @buffer.stats.push [name, stats]
+    @buffer.stats[name] = stats
     @flush()
 
   flush: (force = false) ->
@@ -102,7 +101,7 @@ class CoinExShareLogger extends ShareLogger
       @saveBlock(block) for block in @buffer.blocks
       @buffer.stats = []
       @buffer.blocks = []
-      # @lastFlush = new Date()
+      @lastFlush = new Date()
     catch e
       console.log e, e.stack
 
@@ -151,7 +150,7 @@ class CoinExShareLogger extends ShareLogger
         @saveHrate(userId, user.nickname(), wrkName, hrate)
         cbx(null)
 
-    async.each stats, updHrate, =>
+    async.each _.pairs(stats), updHrate, =>
       async.each users, ((d, c) => @updateTotalHrate(d,c) ), -> true
 
   getPoolFee: (cb = null) ->
@@ -207,14 +206,14 @@ class CoinExShareLogger extends ShareLogger
         timeSpent:  block.timeSpent
 
       blockRec.save (e, ret) =>
-        console.log e, ret
+        return console.log(e, e.stack) if e
+        console.log ret
 
         return if blockRec.cat == 'orphan'
 
         poolFee = Math.round(blockRec.reward / 100 * fee)
         fullReward = blockRec.reward - poolFee
 
-        console.log block.rewards
         for user, figure of block.rewards
           bs = new CXBlockStat
             _id:    Random.id()

@@ -31,7 +31,7 @@ class CoinbaseTX extends halfnode.Transaction
 
     tx_out = new halfnode.TransactionOut()
     tx_out.value = value
-    tx_out.scriptPubKey = coinbaser.get_script_pubkey(algo, pos)
+    tx_out.scriptPubKey = coinbaser.get_script_pubkey(pos)
     @vin.push tx_in
     @vout.push tx_out
 

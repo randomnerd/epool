@@ -140,7 +140,6 @@ class CoinExShareLogger extends ShareLogger
     users = []
 
     updHrate = (data, cbx) =>
-      console.log data
       [worker, stats] = data
       [userId, wrkName] = worker.split('.')
       users.push(userId) unless _.include(users, userId)
@@ -216,6 +215,8 @@ class CoinExShareLogger extends ShareLogger
         fullReward = blockRec.reward - poolFee
 
         for user, figure of block.rewards
+          r = Math.floor(figure * fullReward)
+          console.log "User %s reward: %s", user, r
           bs = new CXBlockStat
             _id:    Random.id()
             time:   new Date()
@@ -223,7 +224,7 @@ class CoinExShareLogger extends ShareLogger
             blkId:  blockRec._id
             currId: @currId
             userId: user
-            reward: Math.floor(figure * fullReward)
+            reward: r
           bs.save()
 
 module.exports = CoinExShareLogger

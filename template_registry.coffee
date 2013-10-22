@@ -228,7 +228,6 @@ class TemplateRegistry
       console.log e, e.stack
 
   submitBlock: (share, block_hex) ->
-    console.log "submit", block_hex
     checkBlock = (block_hash) =>
       @rpc.call('getblock', [block_hash]).then(
         ((r) => checkTX(r)),

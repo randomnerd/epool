@@ -17,6 +17,7 @@ CXBlock = mg.model 'block', mg.Schema
   currId: String
   finder: String
   dbTime: Date
+  time: Date
   stratum: {type: Boolean, default: true}
 
 CXHashrate = mg.model 'hashrate', mg.Schema
@@ -161,7 +162,6 @@ class CoinExShareLogger extends ShareLogger
 
   getBlockStats: (txid, cb) ->
     retStats = (data) =>
-      console.log 'gbs', data
       details = data?.details?[0]
       return cb('No details on tx') unless details
       stats =
@@ -188,7 +188,6 @@ class CoinExShareLogger extends ShareLogger
       ((cb) => @getBlockStats(block.txid, cb))
       ((cb) => @getBlockFinder(block.finder, cb))
     ], (e, ret) =>
-      console.log e, ret
       [fee, stats, finder] = ret
 
       block = new CXBlock
@@ -207,7 +206,6 @@ class CoinExShareLogger extends ShareLogger
         reward:     stats.reward
         timeSpent:  block.timeSpent
 
-      console.log block
       block.save (e, ret) =>
         console.log e, ret
 

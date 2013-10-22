@@ -159,7 +159,7 @@ class CoinExShareLogger extends ShareLogger
         cbx(null)
 
     async.each stats, updHrate, =>
-      async.each users, (d, c) => @updateTotalHrate(d,c) , -> true
+      async.each users, ((d, c) => @updateTotalHrate(d,c) ), -> true
 
   getBlockStats: (txid, cb) ->
     retStats = (data) =>

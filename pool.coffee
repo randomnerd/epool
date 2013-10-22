@@ -35,7 +35,7 @@ class Pool
     )
 
     if @config.merkleUpdateInterval
-      setTimeout (=> @registry.updateBlock()), @config.merkleUpdateInterval
+      setInterval (=> @registry.updateBlock()), @config.merkleUpdateInterval
 
   onTemplate: (newBlock) ->
     cleanJobs = newBlock

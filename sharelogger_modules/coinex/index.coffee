@@ -155,8 +155,6 @@ class CoinExShareLogger extends ShareLogger
       CXUser.findOne {_id: userId}, (e, r) =>
         hrate = stats.hashrate / 1000
         user = new CXUser(r)
-        hashrates[userId] ||= 0
-        hashrates[userId] += hrate
         @saveHrate(userId, user.nickname(), wrkName, hrate)
         cbx(null)
 

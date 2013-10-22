@@ -99,7 +99,7 @@ class CoinExShareLogger extends ShareLogger
     try
       @saveStats(@buffer.stats)
       @saveBlock(block) for block in @buffer.blocks
-      @buffer.stats = []
+      @buffer.stats = {}
       @buffer.blocks = []
       @lastFlush = new Date()
     catch e

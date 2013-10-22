@@ -1,0 +1,10 @@
+{
+  "name": "epool-sharelogger-coinex",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "mongoose": "~3.6.20",
+    "underscore": "~1.5.2",
+    "async": "~0.2.9"
+  }
+}

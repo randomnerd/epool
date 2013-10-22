@@ -24,20 +24,18 @@ class BlockTemplate extends halfnode.Block
     for t in data.transactions
       @txhashes.push util.ser_uint256(new bignum(t.hash, 16))
 
-    mt = new MerkleTree(@txhashes)
     try
       coinbase = new CoinbaseTX(@coinbaser, data.coinbasevalue, data.coinbaseaux.flags, data.height, cbExtras, @algo, @pos, data.curtime)
     catch e
-      console.dir e.stack
+      console.log e, e.stack
 
-    @value = data.coinbasevalue
     @height = data.height
     @version = data.version
     @prevblock = new bignum(data.previousblockhash, 16)
     @bits = new bignum(data.bits, 16)
     @curtime = data.curtime
     @timedelta = @curtime - util.unixtime()
-    @merkletree = mt
+    @merkletree = new MerkleTree(@txhashes)
     @target = util.uint256_from_compact(@bits)
     @tx = [ coinbase ]
     for tx in data.transactions

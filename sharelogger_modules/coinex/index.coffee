@@ -136,7 +136,7 @@ class CoinExShareLogger extends ShareLogger
       hrate = 0
       name = recs[0].name
       hrate += r.hashrate for r in recs
-      @saveHrate(userId, '__total__', hrate, cb)
+      @saveHrate(userId, '__total__', hrate, => cb(hrate))
 
   updHrate: (data, cbx) ->
     [worker, stats] = data
@@ -145,7 +145,8 @@ class CoinExShareLogger extends ShareLogger
 
   saveStats: (stats) ->
     async.map _.pairs(stats), ((d,c)=> @updHrate(d, c)), (err, users) =>
-      async.each _.uniq(users), ((d, c) => @updateTotalHrate(d,c) ), -> true
+      async.map _.uniq(users), ((d, c) => @updateTotalHrate(d,c) ), (err, hrates) =>
+        console.log Array.sum(hrates)
 
   getPoolFee: (cb = null) ->
     CXCurrency.findOne {_id: @currId}, (e, curr) =>

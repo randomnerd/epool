@@ -132,6 +132,7 @@ class CoinExShareLogger extends ShareLogger
     sel = {currId: @currId, userId: userId, wrkName: {$ne: '__total__'}}
     CXHashrate.find sel, (e, recs) =>
       return if e || !recs.length
+      console.log userId, recs
       hrate = 0
       name = recs[0].name
       hrate += r.hashrate for r in recs
@@ -141,8 +142,7 @@ class CoinExShareLogger extends ShareLogger
   updHrate: (data, cbx) ->
     [worker, stats] = data
     [userId, wrkName] = worker.split('.')
-    # users.push(userId) unless _.include(users, userId)
-    console.log worker, stats.hashrate
+    # console.log worker, stats.hashrate
 
     CXUser.findOne {_id: userId}, (e, r) =>
       hrate = stats.hashrate / 1000
@@ -152,7 +152,7 @@ class CoinExShareLogger extends ShareLogger
 
   saveStats: (stats) ->
     async.map _.pairs(stats), ((d,c)=> @updHrate(d, c)), (err, users) =>
-      async.each users, ((d, c) => @updateTotalHrate(d,c) ), -> true
+      async.each _.uniq(users), ((d, c) => @updateTotalHrate(d,c) ), -> true
 
   getPoolFee: (cb = null) ->
     CXCurrency.findOne {_id: @currId}, (e, curr) =>

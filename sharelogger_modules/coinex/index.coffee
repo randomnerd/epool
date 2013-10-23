@@ -195,6 +195,7 @@ class CoinExShareLogger extends ShareLogger
       ((cb) => @getBlockFinder(block.finder, cb))
     ], (e, ret) =>
       [fee, stats, finder] = ret
+      return unless stats.reward
 
       blockRec = new CXBlock
         _id:        Random.id()
@@ -218,10 +219,11 @@ class CoinExShareLogger extends ShareLogger
 
         return if blockRec.cat == 'orphan'
 
-        poolFee = Math.round(blockRec.reward / 100 * fee)
+        poolFee = Math.round(blockRec.reward / 100 * fee) || 0
         fullReward = blockRec.reward - poolFee
 
         for user, figure of block.rewards
+          continue unless figure
           r = Math.floor(figure * fullReward)
           console.log "User %s reward: %s", user, r
           bs = new CXBlockStat

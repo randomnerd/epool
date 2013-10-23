@@ -152,7 +152,8 @@ class CoinExShareLogger extends ShareLogger
 
   saveStats: (stats) ->
     async.map _.pairs(stats), ((d,c)=> @updHrate(d, c)), (users) =>
-      async.each users, ((d, c) => @updateTotalHrate(d,c) ), -> true
+      console.log users
+      # async.each users, ((d, c) => @updateTotalHrate(d,c) ), -> true
 
   getPoolFee: (cb = null) ->
     CXCurrency.findOne {_id: @currId}, (e, curr) =>

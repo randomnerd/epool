@@ -153,7 +153,7 @@ class CoinExShareLogger extends ShareLogger
         @saveHrate(userId, user.nickname(), wrkName, hrate)
         cbx(null)
 
-    async.each _.pairs(stats), updHrate, =>
+    async.each _.pairs(stats), ((d,c)=> @updHrate(d, c)), =>
       async.each users, ((d, c) => @updateTotalHrate(d,c) ), -> true
 
   getPoolFee: (cb = null) ->

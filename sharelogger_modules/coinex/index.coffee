@@ -109,7 +109,8 @@ class CoinExShareLogger extends ShareLogger
   saveHrate: (userId, wrkName, hashrate, cb) ->
 
     CXUser.findOne {_id: userId}, (e, r) =>
-      name = new CXUser(r).nickname()
+      user = new CXUser(r)
+      name = user.nickname()
       console.log name, wrkName, hashrate
       sel =
         currId: @currId

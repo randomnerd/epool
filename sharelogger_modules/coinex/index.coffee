@@ -138,20 +138,20 @@ class CoinExShareLogger extends ShareLogger
       @saveHrate(userId, name, '__total__', hrate)
       cb(null, true) if cb
 
+  updHrate: (data, cbx) ->
+    [worker, stats] = data
+    [userId, wrkName] = worker.split('.')
+    users.push(userId) unless _.include(users, userId)
+    console.log worker, stats.hashrate
+
+    CXUser.findOne {_id: userId}, (e, r) =>
+      hrate = stats.hashrate / 1000
+      user = new CXUser(r)
+      @saveHrate(userId, user.nickname(), wrkName, hrate)
+      cbx(null)
+
   saveStats: (stats) ->
     users = []
-
-    updHrate = (data, cbx) =>
-      [worker, stats] = data
-      [userId, wrkName] = worker.split('.')
-      users.push(userId) unless _.include(users, userId)
-      console.log worker, stats.hashrate
-
-      CXUser.findOne {_id: userId}, (e, r) =>
-        hrate = stats.hashrate / 1000
-        user = new CXUser(r)
-        @saveHrate(userId, user.nickname(), wrkName, hrate)
-        cbx(null)
 
     async.each _.pairs(stats), ((d,c)=> @updHrate(d, c)), =>
       async.each users, ((d, c) => @updateTotalHrate(d,c) ), -> true

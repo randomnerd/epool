@@ -138,12 +138,10 @@ class CoinExShareLogger extends ShareLogger
       cb(null, true) if cb
 
   saveStats: (stats) ->
-    users = []
-
+    console.log(stats)
     updHrate = (data, cbx) =>
       [worker, stats] = data
       [userId, wrkName] = worker.split('.')
-      users.push(userId) unless _.include(users, userId)
 
       CXUser.findOne {_id: userId}, (e, r) =>
         hrate = stats.hashrate / 1000

@@ -42,7 +42,7 @@ class ShareLogger
       n = _.reduce(shares, ((m, n) => m+n[1]), 0)
       total_d1a += n
       tmp[@getUserId(worker)] ||= 0
-      tmp[@getUserId(worker)] = n
+      tmp[@getUserId(worker)] += n
 
     for user, d1a of tmp
       rewards[user] = d1a / total_d1a

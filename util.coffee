@@ -19,6 +19,8 @@ util =
   address_to_pubkeyhash: (addr) ->
     addr = util.b58decode(addr)
     return unless addr
+    if addr.length == 24
+      addr = Buffer.concat([new Buffer([0x00]), addr])
     ver = addr[0]
     cksumA = addr[-4..]
     cksumB = util.dblsha(addr[..-5])[..3]

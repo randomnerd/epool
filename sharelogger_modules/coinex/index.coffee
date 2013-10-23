@@ -73,8 +73,12 @@ class CoinExShareLogger extends ShareLogger
     console.log 'CoinEX sharelogger - connecting'
     @db = mg.connect(@params.dbString)
     @db.connection.on 'open',  => @connStatus(true)
-    @db.connection.on 'error', => @connStatus(false)
-    @db.connection.on 'close', => @connStatus(false)
+    @db.connection.on 'error', (a,b,c) =>
+      console.log a,b,c
+      @connStatus(false)
+    @db.connection.on 'close', (a,b,c) =>
+      console.log a,b,c
+      @connStatus(false)
 
   connStatus: (c) ->
     @connected = c
@@ -118,7 +122,7 @@ class CoinExShareLogger extends ShareLogger
 
       CXHashrate.findOne sel, (e, rec) =>
         if !e && rec = new CXHashrate(rec)
-          rec.update {$set: {hashrate: hashrate, name: name}}, => cb(null, userId)
+          rec.update {$set: {hashrate: hashrate || 0, name: name}}, => cb(null, userId)
         else
           rec = new CXHashrate
             _id:      Random.id()
@@ -126,7 +130,7 @@ class CoinExShareLogger extends ShareLogger
             currId:   @currId
             userId:   userId
             wrkName:  wrkName
-            hashrate: hashrate
+            hashrate: hashrate || 0
           rec.save => cbx(null, userId)
 
   updateTotalHrate: (userId, cb) ->
@@ -135,7 +139,7 @@ class CoinExShareLogger extends ShareLogger
       return if e || !recs.length
       hrate = 0
       name = recs[0].name
-      hrate += r.hashrate for r in recs
+      hrate += (r.hashrate || 0) for r in recs
       @saveHrate(userId, '__total__', hrate, => cb(null, hrate))
 
   updHrate: (data, cbx) ->

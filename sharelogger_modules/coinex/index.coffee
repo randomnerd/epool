@@ -45,7 +45,7 @@ CXUserShema = mg.Schema
     nickname: String
 
 CXCurrency = mg.model 'currency', mg.Schema(
-  { _id: String, miningFee: Number }
+  { _id: String, miningFee: Number, hashrate: Number }
 ), 'currencies'
 
 CXUserShema.methods.nickname = ->
@@ -60,10 +60,10 @@ class CoinExShareLogger extends ShareLogger
     @params = params
     @db = null
     @connected = false
-    @connect()
     @currId = params.currencyId
     @flushInterval = params.flushInterval || 30
     @poolFee = 0
+    @connect()
     @buffer =
       lastFlush: null
       stats:  {}

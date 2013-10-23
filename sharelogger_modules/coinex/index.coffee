@@ -148,13 +148,11 @@ class CoinExShareLogger extends ShareLogger
       hrate = stats.hashrate / 1000
       user = new CXUser(r)
       @saveHrate(userId, user.nickname(), wrkName, hrate)
-      cbx(null)
+      cbx(null, userId)
 
   saveStats: (stats) ->
-    users = []
-
-    async.each _.pairs(stats), ((d,c)=> @updHrate(d, c)), => true
-      # async.each users, ((d, c) => @updateTotalHrate(d,c) ), -> true
+    async.each _.pairs(stats), ((d,c)=> @updHrate(d, c)), (users) =>
+      async.each users, ((d, c) => @updateTotalHrate(d,c) ), -> true
 
   getPoolFee: (cb = null) ->
     CXCurrency.findOne {_id: @currId}, (e, curr) =>

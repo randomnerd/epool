@@ -99,7 +99,7 @@ class CoinExShareLogger extends ShareLogger
     @flush()
 
   flush: (force = false) ->
-    force = true unless @lastFlush
+    @lastFlush ||= new Date()
     return unless force || (new Date() - @lastFlush) / 1000 >= @flushInterval
     return unless @connected
 

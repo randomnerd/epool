@@ -62,7 +62,7 @@ class CoinExShareLogger extends ShareLogger
     @connected = false
     @connect()
     @currId = params.currencyId
-    @flushInterval = params.flushInterval || 10
+    @flushInterval = params.flushInterval || 30
     @poolFee = 0
     @buffer =
       lastFlush: null

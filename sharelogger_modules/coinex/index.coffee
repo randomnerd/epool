@@ -49,8 +49,9 @@ CXCurrency = mg.model 'currency', mg.Schema(
 ), 'currencies'
 
 CXUserShema.methods.nickname = ->
+  return false unless @profile || @nickname
   nickname = @profile?.nickname
-  nickname ||= @emails[0].address.replace(/@.*/, '')
+  nickname ||= @emails?[0]?.address?.replace(/@.*/, '')
 
 CXUser = mg.model 'user', CXUserShema
 
@@ -114,6 +115,7 @@ class CoinExShareLogger extends ShareLogger
   saveHrate: (userId, wrkName, hashrate, cb) ->
 
     CXUser.findOne {_id: userId}, (e, r) =>
+      return console.log(e) if e
       user = new CXUser(r)
       name = user.nickname()
       sel =

@@ -80,10 +80,12 @@ class Pool
     [user, pass] = params
 
     auth = true # FIXME
+    auth = false unless user.split('.').length == 2
+    auth = false unless user.split('.')[0].length == 17
 
     client.authorized = auth
     def.resolve([auth])
-    console.log("Miner authorized: %s", user)
+    console.log("Miner authorized: %s", user) if auth
 
   onSubmit: (sub, params, def) ->
     [workerName, jobId, extranonce2, ntime, nonce] = params

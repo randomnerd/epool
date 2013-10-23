@@ -72,10 +72,11 @@ class CoinExShareLogger extends ShareLogger
   connect: ->
     console.log 'CoinEX sharelogger - connecting'
     @db = mg.connect(@params.dbString)
-    @db.connection.on 'open',  => @connStatus(true)
+    @db.connection.on 'connected',  => @connStatus(true)
+    @db.connection.on 'disconnected',  => @connStatus(false)
     @db.connection.on 'error', (a,b,c) =>
       console.log a,b,c
-      @connStatus(false)
+      @connStatus(@db.readyState == 1)
     @db.connection.on 'close', (a,b,c) =>
       console.log a,b,c
       @connStatus(false)
@@ -83,7 +84,7 @@ class CoinExShareLogger extends ShareLogger
   connStatus: (c) ->
     @connected = c
     console.log 'CoinEX sharelogger', (if c then 'connected' else 'disconnected')
-    unless c
+    unless c || @db.readyState == 2
       setTimeout (=> @connect()), 100
 
   logShare: (share) -> true

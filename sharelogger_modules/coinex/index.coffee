@@ -106,27 +106,29 @@ class CoinExShareLogger extends ShareLogger
     catch e
       console.log e, e.stack
 
-  saveHrate: (userId, name, wrkName, hashrate) ->
+  saveHrate: (userId, wrkName, hashrate, cb) ->
     console.log name, wrkName, hashrate
-    sel =
-      currId: @currId
-      userId: userId
-      wrkName: wrkName
 
-    CXHashrate.findOne sel, (e, rec) =>
-      if !e && rec = new CXHashrate(rec)
-        rec.hashrate = hashrate
-        rec.name = name
-        rec.save()
-      else
-        rec = new CXHashrate
-          _id:      Random.id()
-          name:     name
-          currId:   @currId
-          userId:   userId
-          wrkName:  wrkName
-          hashrate: hashrate
-        rec.save()
+    CXUser.findOne {_id: userId}, (e, r) =>
+      sel =
+        currId: @currId
+        userId: userId
+        wrkName: wrkName
+
+      CXHashrate.findOne sel, (e, rec) =>
+        if !e && rec = new CXHashrate(rec)
+          rec.hashrate = hashrate
+          rec.name = name
+          rec.save => cb(null, userId)
+        else
+          rec = new CXHashrate
+            _id:      Random.id()
+            name:     name
+            currId:   @currId
+            userId:   userId
+            wrkName:  wrkName
+            hashrate: hashrate
+          rec.save => cbx(null, userId)
 
   updateTotalHrate: (userId, cb) ->
     sel = {currId: @currId, userId: userId, wrkName: {$ne: '__total__'}}
@@ -142,13 +144,8 @@ class CoinExShareLogger extends ShareLogger
   updHrate: (data, cbx) ->
     [worker, stats] = data
     [userId, wrkName] = worker.split('.')
+    @saveHrate(userId, wrkName, stats.hashrate / 1000, cbx)
     # console.log worker, stats.hashrate
-
-    CXUser.findOne {_id: userId}, (e, r) =>
-      hrate = stats.hashrate / 1000
-      user = new CXUser(r)
-      @saveHrate(userId, user.nickname(), wrkName, hrate)
-      cbx(null, userId)
 
   saveStats: (stats) ->
     async.map _.pairs(stats), ((d,c)=> @updHrate(d, c)), (err, users) =>

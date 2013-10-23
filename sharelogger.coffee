@@ -1,5 +1,6 @@
 util = require './util'
 bignum = require 'bignum'
+_ = require 'underscore'
 
 class ShareLogger
   constructor: (algo, params, rpc) ->

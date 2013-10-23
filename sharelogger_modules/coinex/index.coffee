@@ -107,13 +107,14 @@ class CoinExShareLogger extends ShareLogger
       console.log e, e.stack
 
   saveHrate: (userId, name, wrkName, hashrate) ->
+    console.log name, wrkName, hashrate
     sel =
       currId: @currId
       userId: userId
       wrkName: wrkName
 
     CXHashrate.findOne sel, (e, rec) =>
-      if !e && rec
+      if !e && rec = new CXHashrate(rec)
         rec.hashrate = hashrate
         rec.name = name
         rec.save()
@@ -144,7 +145,6 @@ class CoinExShareLogger extends ShareLogger
       [worker, stats] = data
       [userId, wrkName] = worker.split('.')
       users.push(userId) unless _.include(users, userId)
-      console.log worker, stats.hashrate
 
       CXUser.findOne {_id: userId}, (e, r) =>
         hrate = stats.hashrate / 1000

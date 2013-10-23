@@ -115,7 +115,7 @@ class CoinExShareLogger extends ShareLogger
   saveHrate: (userId, wrkName, hashrate, cb) ->
 
     CXUser.findOne {_id: userId}, (e, r) =>
-      return console.log(e) if e
+      return cb(null, null) if e
       user = new CXUser(r)
       name = user.nickname()
       sel =
@@ -137,6 +137,7 @@ class CoinExShareLogger extends ShareLogger
           rec.save => cbx(null, userId)
 
   updateTotalHrate: (userId, cb) ->
+    return cb(null, 0) unless userId
     sel = {currId: @currId, userId: userId, wrkName: {$ne: '__total__'}}
     CXHashrate.find sel, (e, recs) =>
       return if e || !recs.length

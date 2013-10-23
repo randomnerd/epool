@@ -69,9 +69,6 @@ class TemplateRegistry
     @onTemplateCB(newBlock)
 
   updateBlock: ->
-    data = require './test_sha256_block_template'
-    setTimeout (=>  @_updateBlock(data)), 100
-    return
     return if @updateInProgress
     @updateInProgress = true
     @rpc.call('getblocktemplate', [{}]).then(

@@ -29,11 +29,23 @@ class ShareLogger
 
   calcRewards: ->
     rewards = {}
-    d1a = 0
-    d1a += s.d1a for w, s of @stats
-    for worker, stats of @stats
-      rewards[@getUserId(worker)] ||= 0
-      rewards[@getUserId(worker)] += stats.d1a / d1a
+    # d1a = 0
+    # d1a += s.d1a for w, s of @stats
+    # for worker, stats of @stats
+    #   rewards[@getUserId(worker)] ||= 0
+    #   rewards[@getUserId(worker)] += stats.d1a / d1a
+
+    total_d1a = 0
+    tmp = {}
+    for worker, shares of @shareBuffer
+      n = _.reduce(shares, ((m, n) => m+n[1]), 0)
+      total_d1a += n
+      tmp[@getUserId(worker)] ||= 0
+      tmp[@getUserId(worker)] = n
+
+    for user, d1a of tmp
+      rewards[user] = d1a / total_d1a
+
     return rewards
 
   logBlock: (share, data) ->

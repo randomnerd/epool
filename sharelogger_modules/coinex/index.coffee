@@ -119,9 +119,10 @@ class CoinExShareLogger extends ShareLogger
 
       CXHashrate.findOne sel, (e, rec) =>
         if !e && rec = new CXHashrate(rec)
-          rec.hashrate = hashrate
-          rec.name = name
-          rec.save => cb(null, userId)
+          rec.update {$set: {hashrate: hashrate, name: name}}, => cb(null, userId)
+          # rec.hashrate = hashrate
+          # rec.name = name
+          # rec.save => cb(null, userId)
         else
           rec = new CXHashrate
             _id:      Random.id()

@@ -120,7 +120,6 @@ class CoinExShareLogger extends ShareLogger
         userId: userId
         wrkName: wrkName
 
-      console.log "Name: %s, hashrate: %s", name, hashrate
       CXHashrate.findOne sel, (e, rec) =>
         if !e && rec = new CXHashrate(rec)
           rec.update {$set: {hashrate: hashrate || 0, name: name}}, => cb(null, userId)
@@ -150,18 +149,16 @@ class CoinExShareLogger extends ShareLogger
 
   saveStats: (stats) ->
     async.map _.pairs(stats), ((d,c)=> @updHrate(d, c)), (err, users) =>
-      console.log err
       CXHashrate.update(
         {currId: @currId, userId: {$nin: users}},
         {$set: {hashrate: 0}},
         {multi: true},
-        (e) => true
+        ((e) => true)
       )
       async.map _.uniq(users), ((d, c) => @updateTotalHrate(d,c) ), (err, hrates) =>
-        console.log err
         total = _.reduce(hrates, ((m, n) => m+n), 0)
-        CXCurrency.update({_id: @currId}, {$set: {hashrate: total}}, => true)
         console.log 'Pool hashrate: %s MH/s', total
+        CXCurrency.update({_id: @currId}, {$set: {hashrate: total}}, (=> true))
 
   getPoolFee: (cb = null) ->
     CXCurrency.findOne {_id: @currId}, (e, curr) =>

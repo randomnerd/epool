@@ -145,6 +145,7 @@ class CoinExShareLogger extends ShareLogger
       [worker, stats] = data
       [userId, wrkName] = worker.split('.')
       users.push(userId) unless _.include(users, userId)
+      console.log worker, stats.hashrate
 
       CXUser.findOne {_id: userId}, (e, r) =>
         hrate = stats.hashrate / 1000

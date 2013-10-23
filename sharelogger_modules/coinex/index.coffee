@@ -136,7 +136,7 @@ class CoinExShareLogger extends ShareLogger
       hrate = 0
       name = recs[0].name
       hrate += r.hashrate for r in recs
-      @saveHrate(userId, '__total__', hrate, => cb(hrate))
+      @saveHrate(userId, '__total__', hrate, => cb(null, hrate))
 
   updHrate: (data, cbx) ->
     [worker, stats] = data

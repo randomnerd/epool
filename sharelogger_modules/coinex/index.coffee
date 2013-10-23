@@ -120,6 +120,7 @@ class CoinExShareLogger extends ShareLogger
         userId: userId
         wrkName: wrkName
 
+      console.log "Name: %s, hashrate: %s", name, hashrate
       CXHashrate.findOne sel, (e, rec) =>
         if !e && rec = new CXHashrate(rec)
           rec.update {$set: {hashrate: hashrate || 0, name: name}}, => cb(null, userId)

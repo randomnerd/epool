@@ -30,15 +30,10 @@ class ShareLogger
 
   calcRewards: ->
     rewards = {}
-    # d1a = 0
-    # d1a += s.d1a for w, s of @stats
-    # for worker, stats of @stats
-    #   rewards[@getUserId(worker)] ||= 0
-    #   rewards[@getUserId(worker)] += stats.d1a / d1a
-
     total_d1a = 0
     tmp = {}
     for worker, shares of @shareBuffer
+      @truncateBuffer(shares, @params.shareTimeFrame)
       n = _.reduce(shares, ((m, n) => m+n[1]), 0)
       total_d1a += n
       tmp[@getUserId(worker)] ||= 0
@@ -96,7 +91,7 @@ class ShareLogger
 
   updateBuffer: (share) ->
     buf = @shareBuffer[share.username] ||= []
-    @truncateBuffer(buf, @params.shareTimeFrame) # FIXME: configurable time window
+    @truncateBuffer(buf, @params.shareTimeFrame)
     buf.push [share.time, share.diff_target]
 
   updateHashrate: (name) ->
@@ -124,6 +119,6 @@ class ShareLogger
       break if util.minutesFrom(s[0]) > minutes
       i++
 
-    buf.splice(i)
+    buf.splice(0,i)
 
 module.exports = ShareLogger

@@ -100,7 +100,7 @@ class CoinExShareLogger extends ShareLogger
     return unless @connected
 
     try
-      @saveStats(@stats)
+      @saveStats()
       @lastFlush = new Date()
     catch e
       console.log e, e.stack
@@ -147,8 +147,8 @@ class CoinExShareLogger extends ShareLogger
     [userId, wrkName] = worker.split('.')
     @saveHrate(userId, wrkName, stats.hashrate / 1000, cbx)
 
-  saveStats: (stats) ->
-    async.map _.pairs(stats), ((d,c)=> @updHrate(d, c)), (err, users) =>
+  saveStats: () ->
+    async.map _.pairs(@stats), ((d,c)=> @updHrate(d, c)), (err, users) =>
       console.log err if err
       CXHashrate.update(
         {currId: @currId, userId: {$nin: users}},
@@ -162,6 +162,7 @@ class CoinExShareLogger extends ShareLogger
           total = _.reduce(hrates, ((m, n) => m+n), 0)
           console.log 'Pool hashrate: %s MH/s', total
           CXCurrency.update({_id: @currId}, {$set: {hashrate: total}}, (=> true))
+          @stats = {}
         catch e
           console.log e, e.stack
 

@@ -128,9 +128,7 @@ class CoinExShareLogger extends ShareLogger
             userId:   userId
             wrkName:  wrkName
             hashrate: hashrate || 0
-          urec.save (e) =>
-            console.log 'urec.save', e
-            cb(null, userId)
+          urec.save (e) => cb(null, userId)
 
   updateTotalHrate: (userId, cbx) ->
     return cb(null, 0) unless userId

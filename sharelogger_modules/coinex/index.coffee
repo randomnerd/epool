@@ -65,10 +65,8 @@ class CoinExShareLogger extends ShareLogger
     @flushInterval = params.flushInterval || 60
     @poolFee = 0
     @connect()
-    @buffer =
-      lastFlush: null
-      stats:  {}
-      blocks: []
+    @stats = {}
+    @lastFlush = null
 
   connect: ->
     console.log 'CoinEX sharelogger - connecting'
@@ -93,7 +91,7 @@ class CoinExShareLogger extends ShareLogger
 
   logStats: (name, stats) ->
     return unless name.split('.').length == 2
-    @buffer.stats[name] = stats
+    @stats[name] = stats
     @flush()
 
   flush: (force = false) ->
@@ -102,10 +100,7 @@ class CoinExShareLogger extends ShareLogger
     return unless @connected
 
     try
-      @saveStats(@buffer.stats)
-      @saveBlock(block) for block in @buffer.blocks
-      @buffer.stats = {}
-      @buffer.blocks = []
+      @saveStats(@stats)
       @lastFlush = new Date()
     catch e
       console.log e, e.stack
@@ -160,9 +155,12 @@ class CoinExShareLogger extends ShareLogger
       )
       async.map _.uniq(users), ((d, c) => @updateTotalHrate(d,c) ), (err, hrates) =>
         console.log err if err
-        total = _.reduce(hrates, ((m, n) => m+n), 0)
-        console.log 'Pool hashrate: %s MH/s', total
-        CXCurrency.update({_id: @currId}, {$set: {hashrate: total}}, (=> true))
+        try
+          total = _.reduce(hrates, ((m, n) => m+n), 0)
+          console.log 'Pool hashrate: %s MH/s', total
+          CXCurrency.update({_id: @currId}, {$set: {hashrate: total}}, (=> true))
+        catch e
+          console.log e, e.stack
 
   getPoolFee: (cb = null) ->
     CXCurrency.findOne {_id: @currId}, (e, curr) =>

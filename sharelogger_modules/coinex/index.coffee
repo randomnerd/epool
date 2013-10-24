@@ -147,6 +147,7 @@ class CoinExShareLogger extends ShareLogger
   saveStats: (stats) ->
     async.map _.pairs(stats), ((d,c)=> @updHrate(d, c)), (err, users) =>
       console.log err if err
+      console.log 'users', users
       CXHashrate.update(
         {currId: @currId, userId: {$nin: users}},
         {$set: {hashrate: 0}},
@@ -155,6 +156,7 @@ class CoinExShareLogger extends ShareLogger
       )
       async.map _.uniq(users), ((d, c) => @updateTotalHrate(d,c) ), (err, hrates) =>
         console.log err if err
+        console.log 'hrates', hrates
         try
           total = _.reduce(hrates, ((m, n) => m+n), 0)
           console.log 'Pool hashrate: %s MH/s', total

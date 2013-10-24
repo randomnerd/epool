@@ -136,7 +136,7 @@ class CoinExShareLogger extends ShareLogger
       console.log e if e
       return if e
       hrate = 0
-      name = recs[0].name
+      name = recs[0]?.name
       hrate += (r.hashrate || 0) for r in recs
       @saveHrate(userId, '__total__', hrate, (=> true))
       cbx(null, hrate)

@@ -118,7 +118,7 @@ class CoinExShareLogger extends ShareLogger
 
       CXHashrate.findOne sel, (e, rec) =>
         if !e && rec = new CXHashrate(rec)
-          rec.update {$set: {hashrate: hashrate || 0, name: name}}, => cb(null, userId)
+          rec.update {$set: {hashrate: hashrate || 0, name: name}}, (=> cb(null, userId))
         else
           rec = new CXHashrate
             _id:      Random.id()
@@ -127,9 +127,9 @@ class CoinExShareLogger extends ShareLogger
             userId:   userId
             wrkName:  wrkName
             hashrate: hashrate || 0
-          rec.save => cbx(null, userId)
+          rec.save (=> cbx(null, userId))
 
-  updateTotalHrate: (userId, cb) ->
+  updateTotalHrate: (userId, cbx) ->
     return cb(null, 0) unless userId
     sel = {currId: @currId, userId: userId, wrkName: {$ne: '__total__'}}
     CXHashrate.find sel, (e, recs) =>
@@ -137,7 +137,7 @@ class CoinExShareLogger extends ShareLogger
       hrate = 0
       name = recs[0].name
       hrate += (r.hashrate || 0) for r in recs
-      @saveHrate(userId, '__total__', hrate, => cb(null, hrate))
+      @saveHrate(userId, '__total__', hrate, (=> cbx(null, hrate)))
 
   updHrate: (data, cbx) ->
     [worker, stats] = data
@@ -147,7 +147,6 @@ class CoinExShareLogger extends ShareLogger
   saveStats: (stats) ->
     async.map _.pairs(stats), ((d,c)=> @updHrate(d, c)), (err, users) =>
       console.log err if err
-      console.log 'users', users
       CXHashrate.update(
         {currId: @currId, userId: {$nin: users}},
         {$set: {hashrate: 0}},

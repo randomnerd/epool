@@ -89,9 +89,7 @@ class CoinExShareLogger extends ShareLogger
       setTimeout (=> @connect()), 100
 
   logShare: (share) -> true
-  logBlock: (block) ->
-    @buffer.blocks.push block
-    @flush(true)
+  logBlock: (block) -> @saveBlock(block)
 
   logStats: (name, stats) ->
     return unless name.split('.').length == 2
@@ -153,6 +151,7 @@ class CoinExShareLogger extends ShareLogger
 
   saveStats: (stats) ->
     async.map _.pairs(stats), ((d,c)=> @updHrate(d, c)), (err, users) =>
+      console.log err if err
       CXHashrate.update(
         {currId: @currId, userId: {$nin: users}},
         {$set: {hashrate: 0}},
@@ -160,6 +159,7 @@ class CoinExShareLogger extends ShareLogger
         ((e) => true)
       )
       async.map _.uniq(users), ((d, c) => @updateTotalHrate(d,c) ), (err, hrates) =>
+        console.log err if err
         total = _.reduce(hrates, ((m, n) => m+n), 0)
         console.log 'Pool hashrate: %s MH/s', total
         CXCurrency.update({_id: @currId}, {$set: {hashrate: total}}, (=> true))

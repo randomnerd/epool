@@ -134,7 +134,7 @@ class CoinExShareLogger extends ShareLogger
     sel = {currId: @currId, userId: userId, wrkName: {$ne: '__total__'}}
     CXHashrate.find sel, (e, recs) =>
       console.log e if e
-      return if e || !recs.length
+      return if e
       hrate = 0
       name = recs[0].name
       hrate += (r.hashrate || 0) for r in recs

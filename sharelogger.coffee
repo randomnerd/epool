@@ -121,9 +121,9 @@ class ShareLogger
   truncateBuffer: (buf, minutes) ->
     i = 0
     for s in buf
-      break if util.minutesFrom(s[0]) > minutes
+      break if util.minutesFrom(s[0]) < minutes
       i++
 
-    buf.splice(i)
+    buf.splice(0,i)
 
 module.exports = ShareLogger

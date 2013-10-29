@@ -39,8 +39,8 @@ class ShareLogger
     total_d1a = 0
     tmp = {}
     for worker, shares of @shareBuffer
-      n = _.reduce(shares, ((m, n) => m+n[1]), 0)
       @truncateBuffer(shares, @params.shareTimeFrame)
+      n = _.reduce(shares, ((m, n) => m+n[1]), 0)
       total_d1a += n
       tmp[@getUserId(worker)] ||= 0
       tmp[@getUserId(worker)] += n

@@ -148,14 +148,14 @@ class CoinExShareLogger extends ShareLogger
     @saveHrate(userId, wrkName, stats.hashrate / 1000, cbx)
 
   saveStats: () ->
+    CXHashrate.update(
+      {currId: @currId},
+      {$set: {hashrate: 0}},
+      {multi: true},
+      ((e) => true)
+    )
     async.map _.pairs(@stats), ((d,c)=> @updHrate(d, c)), (err, users) =>
       console.log err if err
-      CXHashrate.update(
-        {currId: @currId, userId: {$nin: users}},
-        {$set: {hashrate: 0}},
-        {multi: true},
-        ((e) => true)
-      )
       async.map _.uniq(users), ((d, c) => @updateTotalHrate(d,c) ), (err, hrates) =>
         console.log err if err
         try

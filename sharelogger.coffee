@@ -30,12 +30,6 @@ class ShareLogger
 
   calcRewards: ->
     rewards = {}
-    # d1a = 0
-    # d1a += s.d1a for w, s of @stats
-    # for worker, stats of @stats
-    #   rewards[@getUserId(worker)] ||= 0
-    #   rewards[@getUserId(worker)] += stats.d1a / d1a
-
     total_d1a = 0
     tmp = {}
     for worker, shares of @shareBuffer

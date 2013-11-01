@@ -45,7 +45,7 @@ CXUserShema = mg.Schema
     nickname: String
 
 CXCurrency = mg.model 'currency', mg.Schema(
-  { _id: String, miningFee: Number, hashrate: Number }
+  { _id: String, miningFee: Number, hashrate: Number, lastBlockAt: Date }
 ), 'currencies'
 
 CXUserShema.methods.nickname = ->

@@ -225,8 +225,7 @@ class CoinExShareLogger extends ShareLogger
 
         return if blockRec.cat == 'orphan'
 
-        CXCurrency.update {_id: @currId}, {$set: {lastBlockAt: blockRec.time}}, (e) =>
-          console.log 'lastblock', e
+        CXCurrency.update({_id: @currId}, {$set: {lastBlockAt: blockRec.time}}, (=> true))
 
         poolFee = Math.round(blockRec.reward / 100 * fee) || 0
         fullReward = blockRec.reward - poolFee

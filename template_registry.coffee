@@ -72,7 +72,7 @@ class TemplateRegistry
   updateBlock: ->
     return if @updateInProgress
     @updateInProgress = true
-    @rpc.call('getblocktemplate', [{}]).then(
+    @rpc.call('getblocktemplate', [{mode: 'template'}]).then(
       ((d) => @_updateBlock(d)),
       ((e) => @_updateBlockFail(e))
     )

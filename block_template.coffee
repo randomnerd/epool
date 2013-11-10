@@ -8,8 +8,8 @@ _ = require 'underscore'
 binpack = require 'binpack'
 
 class BlockTemplate extends halfnode.Block
-  constructor: (algo, pos, coinbaser, job_id) ->
-    super(algo, pos)
+  constructor: (algo, pos, txMsg, coinbaser, job_id) ->
+    super(algo, pos, txMsg)
     @job_id = job_id
     @coinbaser = coinbaser
     @timedelta = 0
@@ -39,7 +39,7 @@ class BlockTemplate extends halfnode.Block
     @target = util.uint256_from_compact(@bits)
     @tx = [ coinbase ]
     for tx in data.transactions
-      t = new halfnode.Transaction(@pos)
+      t = new halfnode.Transaction(@pos, @algo, @txMsg)
       t.deserialize(util.unhexlify(tx.data))
       @tx.push t
 

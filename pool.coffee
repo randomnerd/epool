@@ -8,6 +8,8 @@ class Pool
   constructor: (config) ->
     @subs = {}
     @config = config
+    @txMsg = config.algo == 'sha256' && config.pos == true
+    @txMsg = !!config.txMsg unless @txMsg
     @varDiff = config.varDiff
     @varDiffSharesPerMin = config.varDiffSharesPerMin
     @varDiffMax = config.varDiffMax
@@ -29,7 +31,7 @@ class Pool
 
     @sharelogger = new ShareLogger(config.algo, config.sharelogger, @daemon)
     @coinbaser = new Coinbaser(@daemon, config.address)
-    @registry = new TemplateRegistry(config.algo, config.pos, @sharelogger, @coinbaser, @daemon,
+    @registry = new TemplateRegistry(config.algo, config.pos, @txMsg, @sharelogger, @coinbaser, @daemon,
       ((n) => @onTemplate(n)),
       ((p,h) => @onBlock(p,h))
     )

@@ -58,9 +58,10 @@ class TransactionOut
     return Buffer.concat(r)
 
 class Transaction
-  constructor: (pos = false, algo) ->
+  constructor: (pos = false, algo, txMsg) ->
     @algo = algo
     @pos = pos
+    @txMsg = txMsg
     @version = 1
     @time = 0
     @vin = []
@@ -77,7 +78,7 @@ class Transaction
     b.push util.ser_vector(@vin)
     b.push util.ser_vector(@vout)
     b.push binpack.packUInt32(@lockTime, 'little')
-    if @pos && @algo == 'sha256'
+    if @txMsg
       b.push util.ser_string(@message)
     return Buffer.concat(b)
 
@@ -89,7 +90,7 @@ class Transaction
     @vin = util.deser_vector(b, TransactionIn)
     @vout = util.deser_vector(b, TransactionOut)
     @lockTime = binpack.unpackUInt32(util.bufShift(b,4), 'little')
-    if @pos && @algo == 'sha256'
+    if @txMsg
       @message = util.deser_string(b)
     @sha256 = null
 
@@ -99,9 +100,10 @@ class Transaction
   is_valid: -> @calc_sha256()
 
 class Block
-  constructor: (algo = 'sha256', pos = false) ->
+  constructor: (algo = 'sha256', pos = false, txMsg) ->
     @algo = algo
     @pos = pos
+    @txMsg = txMsg
     @version = 1
     @prevblock = 0
     @merkleroot = 0
@@ -171,7 +173,7 @@ class Block
 
     txs = if @pos then block.pos_transactions else block.transactions
     for tx in txs
-      t = new Transaction(@pos, @algo)
+      t = new Transaction(@pos, @algo, @txMsg)
       t.deserialize(util.unhexlify(tx.data))
       @tx.push t
       ser = util.hexlify(t.serialize())

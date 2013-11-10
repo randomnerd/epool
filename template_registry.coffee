@@ -26,9 +26,10 @@ class ExtranonceCounter
   getSize: -> @size
 
 class TemplateRegistry
-  constructor: (algo, pos, sharelogger, cb, rpc, onTemplateCB, onBlockCB) ->
+  constructor: (algo, pos, txMsg, sharelogger, cb, rpc, onTemplateCB, onBlockCB) ->
     @algo = algo
     @pos = pos
+    @txMsg = txMsg
     @sharelogger = sharelogger
     @jobgen = new JobIdGenerator()
     @prevhashes = {}
@@ -87,7 +88,7 @@ class TemplateRegistry
     start = +new Date()
 
     try
-      template = new BlockTemplate(@algo, @pos, @coinbaser, @jobgen.getNewId())
+      template = new BlockTemplate(@algo, @pos, @txMsg, @coinbaser, @jobgen.getNewId())
 
       template.fill_from_rpc(data)
       @jobs = []

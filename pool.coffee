@@ -9,7 +9,7 @@ class Pool
     @subs = {}
     @config = config
     @txMsg = config.algo == 'sha256' && config.pos == true
-    @txMsg = !!config.txMsg unless @txMsg
+    @txMsg = config.txMsg unless config.txMsg == undefined
     @varDiff = config.varDiff
     @varDiffSharesPerMin = config.varDiffSharesPerMin
     @varDiffMax = config.varDiffMax

@@ -94,7 +94,7 @@ class Pool
     @registry.submitShare(
       def, jobId, workerName, sub.session,
       sub.extranonce1_bin, extranonce2, ntime, nonce,
-      sub.diff
+      sub.minDiff
     )
     sub.updateDiff(@config.difficulty, @varDiffMax,
       @varDiffSharesPerMin, @varDiffWindow)

@@ -1,9 +1,12 @@
 crypto = require 'crypto'
 util = require './util'
+_ = require 'underscore'
 
 class Subscription
   constructor: (client, params, registry, diff = 32) ->
     @submits = 0
+    @minDiff = 0
+    @prevDiff = 0
     @diff = diff
     @lastDiffUpdate = null
     @session = {}
@@ -23,7 +26,9 @@ class Subscription
     hash.digest('hex')
 
   setDiff: (diff) ->
+    @prevDiff = @diff
     @diff = diff
+    @minDiff = _.min([@diff, @prevDiff])
     @lastDiffUpdate = new Date()
     @client.set_difficulty(diff)
 

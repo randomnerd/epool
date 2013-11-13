@@ -8,8 +8,8 @@ class Pool
   constructor: (config) ->
     @subs = {}
     @config = config
-    @txMsg = config.algo == 'sha256' && config.pos == true
-    @txMsg = config.txMsg unless config.txMsg == undefined
+    @txMsg = (config.algo == 'sha256' && config.pos == true)
+    @txMsg = config.txMsg unless @txMsg == config.txMsg
     @varDiff = config.varDiff
     @varDiffSharesPerMin = config.varDiffSharesPerMin
     @varDiffMax = config.varDiffMax

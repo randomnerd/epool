@@ -123,7 +123,7 @@ class TemplateRegistry
 
     return j
 
-  submitShare: (defer, jobId, workerName, session, extranonce1_bin, extranonce2, time, nonce, diff) ->
+  submitShare: (defer, jobId, workerName, session, extranonce1_bin, extranonce2, time, nonce, diff, minDiff) ->
     try
       share =
         time: new Date()
@@ -191,7 +191,7 @@ class TemplateRegistry
 
       header_hex = util.hexlify(header_bin)
 
-      target_user = @diff2target(diff)
+      target_user = @diff2target(minDiff)
       share.diff = @diff2target(hash_int).toNumber()
 
       if hash_int.gt(target_user)

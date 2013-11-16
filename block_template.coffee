@@ -25,7 +25,7 @@ class BlockTemplate extends halfnode.Block
       @txhashes.push util.ser_uint256(new bignum(t.hash, 16))
 
     try
-      coinbase = new CoinbaseTX(@coinbaser, data.coinbasevalue, data.coinbaseaux.flags, data.height, cbExtras, @algo, @pos, data.curtime)
+      coinbase = new CoinbaseTX(@coinbaser, data.coinbasevalue, data.coinbaseaux.flags, data.height, cbExtras, @algo, @pos, txMsg, data.curtime)
     catch e
       console.log e, e.stack
 

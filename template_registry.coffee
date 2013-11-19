@@ -193,6 +193,7 @@ class TemplateRegistry
 
       target_user = @diff2target(minDiff)
       share.diff = @diff2target(hash_int).toNumber()
+      share.target_diff = minDiff if share.diff < diff
 
       if hash_int.gt(target_user)
         share.rejectReason = 'Share is above target'

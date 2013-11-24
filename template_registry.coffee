@@ -191,9 +191,9 @@ class TemplateRegistry
 
       header_hex = util.hexlify(header_bin)
 
-      target_user = @diff2target(minDiff)
+      target_user = @diff2target(diff)
       share.diff = @diff2target(hash_int).toNumber()
-      share.target_diff = minDiff if share.diff < diff
+      # share.target_diff = minDiff if share.diff < diff
 
       if hash_int.gt(target_user)
         share.rejectReason = 'Share is above target'

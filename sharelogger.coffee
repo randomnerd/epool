@@ -26,7 +26,7 @@ class ShareLogger
     catch e
       console.log e, e.stack
 
-  getUserId: (username) -> username.split('.')?[0]
+  getUserId: (username) -> username.split('.')?[0] || username
 
   calcRewards: ->
     rewards = {}
@@ -91,7 +91,7 @@ class ShareLogger
 
   updateBuffer: (share) ->
     buf = @shareBuffer[share.username] ||= []
-    @truncateBuffer(buf, @params.shareTimeFrame) # FIXME: configurable time window
+    @truncateBuffer(buf, @params.shareTimeFrame)
     buf.push [share.time, share.diff_target]
 
   updateHashrate: (name) ->
@@ -103,7 +103,7 @@ class ShareLogger
     d1a = 0
     d1a += s[1] for s in buf
     @stats[name].d1a = d1a
-    return unless seconds > 30
+    return unless seconds > 15
     switch @algo
       when 'scrypt'
         dmulti = 67108864

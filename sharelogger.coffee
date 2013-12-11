@@ -36,8 +36,8 @@ class ShareLogger
       @truncateBuffer(shares, @params.shareTimeFrame)
       n = _.reduce(shares, ((m, n) => m+n[1]), 0)
       total_d1a += n
-      tmp[@getUserId(worker)] ||= 0
-      tmp[@getUserId(worker)] += n
+      tmp[worker] ||= 0
+      tmp[worker] += n
 
     for user, d1a of tmp
       rewards[user] = d1a / total_d1a
@@ -59,7 +59,7 @@ class ShareLogger
         hash:       share.block_hash
         txid:       data.tx[0]
         height:     data.height
-        finder:     @getUserId(share.username)
+        finder:     share.username
         rewards:    @calcRewards()
         timeSpent:  (new Date() - @roundstart) / 1000
 

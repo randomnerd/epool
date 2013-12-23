@@ -82,8 +82,8 @@ class Pool
     [user, pass] = params
 
     auth = true # FIXME
-    auth = false unless user.split('.').length == 2
-    auth = false unless user.split('.')[0].length == 17
+    # auth = false unless user.split('.').length == 2
+    # auth = false unless user.split('.')[0].length == 17
 
     client.authorized = auth
     def.resolve([auth])

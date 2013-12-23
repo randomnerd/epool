@@ -2,7 +2,7 @@ ShareLogger = require('../../sharelogger')
 async = require 'async'
 _ = require 'underscore'
 Pusher = require('pusher')
-Mysql  = require('mysql')
+pg = require('pg')
 class CoinExNewShareLogger extends ShareLogger
   constructor: (params, rpc) ->
     @connected = false
@@ -19,20 +19,20 @@ class CoinExNewShareLogger extends ShareLogger
       appId:  params.pusherAppId
       key:    params.pusherKey
       secret: params.pusherSecret
-    @dbSettings =
-      host: params.dbHost
-      port: params.dbPort
-      user: params.dbUser
-      password: params.dbPass
-      database: params.dbName
 
-    @db = Mysql.createConnection @dbSettings
+    dbString = "postgres://#{params.dbUser}:#{params.dbPass}@#{params.dbHost}:#{params.dbPort || 5432}/#{params.dbName}"
+    @db = new pg.Client(dbString)
+    @connect()
+
+  connect: ->
     @db.connect (err) =>
       if err
-        console.log(err)
+        @connected = false
+        console.log('pg connection error', err)
       else
         @connected = true
-        console.log 'CoinEX-new sharelogger connected'
+        @db.query "set timezone='UTC'"
+        console.log('pg connected')
 
   logShare: (share) -> true
   logBlock: (block) -> @saveBlock(block)
@@ -42,38 +42,38 @@ class CoinExNewShareLogger extends ShareLogger
 
   flush: (force = false) ->
     @lastFlush ||= new Date()
+    return @connect() unless @connected
     return unless force || (new Date() - @lastFlush) / 1000 >= @flushInterval
-    return unless @connected
 
     try
       @saveStats()
       @lastFlush = new Date()
     catch e
-      console.log e, e.stack
+      console.log 'flush', e, e.stack
 
   getWorkerId: (name, cb) ->
-    q = "select id from workers where name = ?"
+    q = "select id from workers where name = $1"
     @db.query q, [name], (err, rows) =>
       console.log 'getWorkerId error', err if err
-      cb(rows[0]?.id)
+      cb(rows.rows[0]?.id)
 
   getUserId: (wrkId, cb) ->
-    q = "select user_id from workers where id = ?"
+    q = "select user_id from workers where id = $1"
     @db.query q, [wrkId], (err, rows) =>
       console.log 'getUserId error', err if err
-      cb(rows[0]?.user_id)
+      cb(rows.rows[0]?.user_id)
 
   getUserIdByWrkName: (wrkName, cb) ->
     @getWorkerId wrkName, (id) => @getUserId id, cb
 
   getWorkerStatId: (wrkId, cb) ->
     return cb(null) unless wrkId
-    q = "select id from worker_stats where currency_id = ? and worker_id = ?"
+    q = "select id from worker_stats where currency_id = $1 and worker_id = $2"
     @db.query q, [@currId, wrkId], (err, rows) =>
       console.log 'getWorkerStatId error', err if err
       return cb(null) if err
-      return cb(id, wrkId) if id = rows[0]?.id
-      q = "insert into worker_stats (worker_id, currency_id, created_at, updated_at) values (?, ?, utc_timestamp(), utc_timestamp())"
+      return cb(id, wrkId) if id = rows.rows[0]?.id
+      q = "insert into worker_stats (worker_id, currency_id, created_at, updated_at) values ($1, $2, now(), now())"
       @db.query q, [wrkId, @currId], (err, rows) =>
         console.log 'getWorkerStatId2 error', err if err
         @getWorkerStatId(wrkId, cb)
@@ -84,7 +84,7 @@ class CoinExNewShareLogger extends ShareLogger
   updStat: (data, cb) ->
     [worker, stats] = data
     @getWorkerStatIdByName worker, (id, wrkId) =>
-      q = "update worker_stats set hashrate = ?, accepted = ?, rejected = ?, blocks = ?, diff = ?, updated_at = utc_timestamp() where id = ?"
+      q = "update worker_stats set hashrate = $1, accepted = $2, rejected = $3, blocks = $4, diff = $5, updated_at = now() where id = $6"
       @db.query q, [
         stats.hashrate,
         stats.accepted,
@@ -108,17 +108,17 @@ class CoinExNewShareLogger extends ShareLogger
             updated_at: new Date().toISOString()
 
   resetHrates: ->
-    q = "update worker_stats set hashrate = 0 where currency_id = ?"
+    q = "update worker_stats set hashrate = 0 where currency_id = $1"
     @db.query q, [@currId], (err, rows) ->
       console.log 'resetHrates error', err if err
       true
 
   updatePoolHrate: ->
-    q = "select sum(hashrate) as hashrate from worker_stats where currency_id = ? and updated_at > date_sub(utc_timestamp(), interval 5 minute)"
+    q = "select sum(hashrate) as hashrate from worker_stats where currency_id = $1 and updated_at > current_timestamp - interval '5' minute"
     @db.query q, [@currId], (err, rows) =>
       console.log 'updatePoolHrate error', err if err
-      return unless hashrate = rows[0]?.hashrate
-      q = "update currencies set hashrate = ?, updated_at = utc_timestamp() where id = ?"
+      return unless hashrate = rows.rows[0]?.hashrate
+      q = "update currencies set hashrate = $1, updated_at = now() where id = $2"
       @db.query q, [hashrate, @currId]
       @pusher.trigger 'currencies', 'uu', {id: @currId, fields: {hashrate: hashrate}}
 
@@ -126,6 +126,7 @@ class CoinExNewShareLogger extends ShareLogger
     @resetHrates()
     async.map _.pairs(@stats), ((d,c)=> @updStat(d, c)), (err, statIds) =>
       @updatePoolHrate()
+      @stats = {}
 
   getBlockStats: (txid, cb) ->
     retStats = (data) =>
@@ -144,19 +145,21 @@ class CoinExNewShareLogger extends ShareLogger
     )
 
   getBlockFinder: (worker, cb) ->
-    q = "select users.nickname as name, users.id as id from workers inner join users on users.id = workers.user_id where workers.name = ?"
+    q = "select users.nickname as name, users.id as id from workers inner join users on users.id = workers.user_id where workers.name = $1"
     @db.query q, [worker], (err, rows) ->
+      console.log('getBlockFinder', err) if err
       return cb(err) if err
-      cb(null, {name: rows[0].name, id: rows[0].id})
+      cb(null, {name: rows.rows[0].name, id: rows.rows[0]?.id})
 
   getPoolFee: (cb) ->
-    q = "select mining_fee from currencies where id = ?"
+    q = "select mining_fee from currencies where id = $1"
     @db.query q, [@currId], (err, rows) ->
+      console.log('getPoolFee', err) if err
       return cb(err) if err
-      cb(null, rows[0].mining_fee)
+      cb(null, rows.rows[0].mining_fee)
 
   updateLastBlockAt: ->
-    q = "update currencies set last_block_at = utc_timestamp(), updated_at = utc_timestamp() where id = ?"
+    q = "update currencies set last_block_at = now(), updated_at = now() where id = $1"
     @db.query q, [@currId]
     @pusher.trigger 'currencies', 'uu',
       id: @currId
@@ -164,10 +167,10 @@ class CoinExNewShareLogger extends ShareLogger
         last_block_at: new Date().toISOString()
 
   pushBlock: (block) ->
-    q = "select id from blocks where txid = ?"
+    q = "select id from blocks where txid = $1"
     @db.query q, [block.txid], (err, rows) =>
-      return console.log(err) if err
-      block.id = rows[0].id
+      return console.log('pushBlock', err) if err
+      block?.id = rows.rows[0]?.id
       @pusher.trigger "blocks-#{@currId}", 'c', block
       @createBlockPayouts(block)
 
@@ -189,8 +192,8 @@ class CoinExNewShareLogger extends ShareLogger
         finder:         finder.name
         number:         block.height
         reward:         stats.reward
-        user_id:        finder.id
-        time_spent:     block.timeSpent
+        user_id:        finder?.id
+        time_spent:     Math.round(block.timeSpent)
         created_at:     new Date().toISOString()
         updated_at:     new Date().toISOString()
         currency_id:    @currId
@@ -200,13 +203,14 @@ class CoinExNewShareLogger extends ShareLogger
       q = "insert into blocks (category, paid, diff, txid, finder, number,
                                reward, user_id, time_spent, currency_id,
                                confirmations, created_at, updated_at) values
-                               (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, utc_timestamp(), utc_timestamp())"
+                               ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, now(), now())"
+
       @db.query q, [
         b.category, b.paid, b.diff, b.txid,
         b.finder, b.number, b.reward, b.user_id,
         b.time_spent, b.currency_id, b.confirmations
       ], (err, rows) =>
-        return console.log(err, rows) if err
+        return console.log('saveBlock', err, rows) if err
         @updateLastBlockAt()
         @pushBlock(b)
         return if block.category == 'orphan'
@@ -222,25 +226,28 @@ class CoinExNewShareLogger extends ShareLogger
 
     async.map _.pairs(block.stats), setAmount, =>
       for user_id, amount of amounts
+        continue unless amount > 0
         bp =
           amount: amount
           user_id: user_id
-          block_id: block.id
+          block_id: block?.id
           created_at: new Date().toISOString()
           updated_at: new Date().toISOString()
 
         q = 'insert into block_payouts (user_id, block_id, amount, created_at, updated_at)
-             values (?, ?, ?, utc_timestamp(), utc_timestamp())'
+             values ($1, $2, $3, now(), now())'
         @db.query q, [bp.user_id, bp.block_id, bp.amount], (err, rows) =>
-          return console.log(err) if err
+          return console.log('createBlockPayouts', err) if err
           @pushBlockPayout(bp)
 
   pushBlockPayout: (bp) ->
-    q = 'select id from block_payouts where user_id = ? and block_id = ?'
-    @db.query q, [bp.user_id, bp.block_id], (err, rows) =>
-      return console.log(err) if err
-      bp.id = rows[0].id
-      @pusher.trigger "blockpayouts-#{@currId}", 'c', bp
-
+    try
+      q = 'select id from block_payouts where user_id = $1 and block_id = $2'
+      @db.query q, [bp.user_id, bp.block_id], (err, rows) =>
+        return console.log('pushBlockPayout', err) if err
+        bp?.id = rows.rows[0]?.id
+        @pusher.trigger "private-blockpayouts-#{bp.user_id}", 'c', bp
+    catch e
+      console.log('pushBlockPayout', e)
 
 module.exports = CoinExNewShareLogger

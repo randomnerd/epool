@@ -62,7 +62,7 @@ class Transaction
     @algo = algo
     @pos = pos
     @txMsg = txMsg
-    @version = 1
+    if @txMsg then @version = 2 else @version = 1
     @time = 0
     @vin = []
     @vout = []

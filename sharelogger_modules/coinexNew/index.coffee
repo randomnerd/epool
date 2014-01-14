@@ -68,7 +68,7 @@ class CoinExNewShareLogger extends ShareLogger
 
   getWorkerStatId: (wrkId, cb) ->
     return cb(null) unless wrkId
-    q = "select id from worker_stats where currency_id = $1 and worker_id = $2"
+    q = "select id from worker_stats where currency_id = $1 and worker_id = $2 and switchpool = 'f'"
     @db.query q, [@currId, wrkId], (err, rows) =>
       console.log 'getWorkerStatId error', err if err
       return cb(null) if err
@@ -108,7 +108,7 @@ class CoinExNewShareLogger extends ShareLogger
             updated_at: new Date().toISOString()
 
   resetHrates: ->
-    q = "update worker_stats set hashrate = 0 where currency_id = $1"
+    q = "update worker_stats set hashrate = 0 where currency_id = $1 and switchpool = 'f'"
     @db.query q, [@currId], (err, rows) ->
       console.log 'resetHrates error', err if err
       true
